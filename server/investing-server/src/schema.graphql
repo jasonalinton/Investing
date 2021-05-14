@@ -1,0 +1,100 @@
+type Query {
+  assetValues: [AssetValue!]!
+  bogeTransfers: [BogeTransfer!]!
+  getLastSavedTransferTime: String!
+}
+
+type Mutation {
+  addAssetValue(assetValue: AssetValueInput): AssetValue!
+  addAssetValues(assetValues: [AssetValueInput]): [AssetValue!]!
+  addTransfer(transfer: BogeTransferInput): BogeTransfer!
+  getLastSavedTime(symbol: String!): String!
+  getAssetValue(symbol: String!, datetime: String!): AssetValue
+  getAssetValues(symbol: String!, datetimes:[String]!): [AssetValue!]!
+  getBogeTransfers(address: String): [BogeTransfer!]
+  saveBNBValue(id: Int bnbAmount: Float): BogeTransfer
+}
+
+type Asset {
+  id:     ID! 
+  text:   String!
+  symbol: String!
+  name:   String!
+}
+
+input AssetInput {
+  id:     ID
+  text:   String
+  symbol: String!
+  name:   String
+}
+
+type AssetValue {
+  id:                       ID! 
+  idBaseAsset:              Int!
+  idQuoteAsset:             Int!
+  interval:                 String!
+  symbol:                   String!
+  openTime:                 String!
+  open:                     Float!
+  high:                     Float!
+  low:                      Float!
+  close:                    Float!
+  volume:                   Float!
+  closeTime:                String!
+  quoteAssetVolume:         Float
+  numberOfTrades:           Float
+  takerBuyBaseAssetVolume:  Float
+  takerBuyQuoreAssetVolume: Float
+  baseAsset:                Asset!
+  quoteAsset:               Asset!
+}
+
+input AssetValueInput {
+  id:                       ID
+  idBaseAsset:              Int
+  idQuoteAsset:             Int
+  symbol:                   String!
+  interval:                 String!
+  openTime:                 String!
+  open:                     Float!
+  high:                     Float!
+  low:                      Float!
+  close:                    Float!
+  volume:                   Float!
+  closeTime:                String!
+  quoteAssetVolume:         Float
+  numberOfTrades:           Float
+  takerBuyBaseAssetVolume:  Float
+  takerBuyQuoreAssetVolume: Float
+  baseAsset:                AssetInput!
+  quoteAsset:               AssetInput!
+}
+
+type BogeTransfer {
+  id:              ID!
+  datetime:        String
+  type:            String
+  bnbAmount:       Float
+  bnbUnitValue:    Float
+  bogeAmount:      Float
+  priceTotal:      Float
+  priceUnit:       Float
+  senderAddress:   String
+  receiverAddress: String
+  txHash:          String
+}
+
+input BogeTransferInput {
+  id:              ID
+  datetime:        String
+  type:            String
+  bnbAmount:       Float
+  bnbUnitValue:    Float
+  bogeAmount:      Float
+  priceTotal:      Float
+  priceUnit:       Float
+  senderAddress:   String
+  receiverAddress: String
+  txHash:          String
+}

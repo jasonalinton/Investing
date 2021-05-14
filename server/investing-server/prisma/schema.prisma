@@ -1,0 +1,60 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Asset {
+  id         Int      @id @default(autoincrement())
+  symbol     String   @unique
+  name       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  baseAsset  Asset[]  @relation("AssetPair", references: [id])
+  quoteAsset Asset[]  @relation("AssetPair", references: [id])
+  assetValueBase AssetValue[] @relation("assetValueBase")
+  assetValueQuote AssetValue[] @relation("assetValueQuote")
+}
+
+model AssetValue {
+  id                        Int      @id @default(autoincrement())
+  idBaseAsset               Int
+  idQuoteAsset              Int
+  symbol                    String   
+  interval                  String  
+  openTime                  DateTime
+  open                      Float
+  high                      Float
+  low                       Float
+  close                     Float
+  volume                    Float
+  closeTime                 DateTime
+  quoteAssetVolume          Float?
+  numberOfTrades            Float?
+  takerBuyBaseAssetVolume   Float?
+  takerBuyQuoreAssetVolume  Float?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @default(now()) @updatedAt
+  baseAsset                 Asset  @relation(name: "assetValueBase", fields: [idBaseAsset], references: [id])
+  quoteAsset                Asset  @relation(name: "assetValueQuote", fields: [idQuoteAsset], references: [id])
+  // assetPair                 AssetPair[] @relation(fields: [idAssetPair], references: [id])
+}
+
+model BogeTransfers {
+  id Int @id @default(autoincrement())
+  datetime        DateTime?
+  type            String?
+  bnbAmount       Float?
+  bnbUnitValue    Float?
+  bogeAmount      Float?
+  priceTotal      Float?
+  priceUnit       Float?
+  senderAddress   String?
+  receiverAddress String?
+  txHash          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+}
