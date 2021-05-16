@@ -14,7 +14,9 @@ function syncTransferTable(self, resolveTransfers) {
             fetchBNBTransfers(self, resolve);
         }))
         .then((res) => new Promise((resolve) => {
-            setBNBValues(self, res.transferQueue);    
+            setBNBValues(self, res.transferQueue);   
+            
+            console.log("Saving transfers"); 
             saveTransfers(self, resolve);
         }))
         .then(resolveTransfers);
@@ -286,8 +288,6 @@ function getBNBHistory(self) {
 }
 
 function saveTransfers(self, resolve) {
-    console.log("Saving transfers");
-
     let transfer = self.newTransfers.shift();
     saveTransfer(transfer)
         .then(() => {
@@ -297,17 +297,6 @@ function saveTransfers(self, resolve) {
                 resolve();
             }
         });
-
-    // self.newTransfers.map((transfer) => {
-    //     saveTransfer(transfer).then(
-    //         (res) => {
-    //             if (self.shouldLog)
-    //                 console.log(res.data.data.addTransfer);
-    //         },
-    //         (err) => {
-    //             console.log(err);
-    //         })
-    // });
 }
 
 async function saveTransfer(transfer) {
