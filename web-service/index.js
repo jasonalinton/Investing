@@ -3,7 +3,8 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const port = 3050;
 import BNBService from './service/bnbService.js';
-import BogeTransferService from './service/bogeTransferService';
+import BogeTransferService from './service/boge/bogeTransferService';
+import BogeHistoryService from './service/boge/bogeHistoryService';
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
@@ -21,8 +22,11 @@ io.on('connection', (socket) => {
     });
 });
 
-const bnbService = new BNBService(30000);
+const bnbService = new BNBService(60000);
 bnbService.start();
 
-const bogeService = new BogeTransferService(30000);
-bogeService.start();
+const bogeTransferService = new BogeTransferService(60000);
+bogeTransferService.start();
+
+// const bogeHistoryService = new BogeHistoryService(60000);
+// bogeHistoryService.start();

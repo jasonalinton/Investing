@@ -184,14 +184,14 @@ async function getAssetValues(parent, args, context, info) {
 }
 
 async function getLastSavedTime(parent, args, context, info) {
-    console.log("In");
     let assetValue = await context.prisma.assetValue.findFirst({
         select: { closeTime: true },
+        where: { symbol: args.symbol },
         orderBy: { closeTime: "desc" }
     })
 
     console.log(assetValue);
-    let lastTime = new Date(2021, 0, 1);
+    let lastTime = (args.symbol == "BOGE") ? new Date(2021, 3, 18, 16, 30, 0) : new Date(2021, 0, 1);
     if (assetValue) {
         lastTime = new Date(assetValue.closeTime);
     }
@@ -225,7 +225,35 @@ async function getBogeTransfers(parent, args, context, info) {
             }
         });
     }
-    
+}
+
+async function getBogeTransferRange(parent, args, context, info) {
+    let startDatetime = (args.startDatetime) ? new Date(args.startDatetime) : new Date(2000, 0, 1);
+    let endDatetime = (args.endDatetime) ? new Date(args.endDatetime) : new Date(3000, 0, 1);
+
+    if (args.address) {
+        return await context.prisma.bogeTransfers.findMany({
+            where: {
+                OR: [
+                    { senderAddress: args.address },
+                    { receiverAddress: args.address }
+                ],
+                AND: [
+                    { datetime: { gte: startDatetime } },
+                    { datetime: { lte: endDatetime } }
+                ]
+            }
+        });
+    } else {
+        return await context.prisma.bogeTransfers.findMany({
+            where: {
+                AND: [
+                    { datetime: { gte: startDatetime } },
+                    { datetime: { lte: endDatetime } }
+                ]
+            }
+        });
+    }
 }
 
 async function saveBNBValue(parent, args, context, info) {
@@ -336,5 +364,6 @@ module.exports = {
     getLastSavedTime,
     saveBNBValue,
     getBogeTransfers,
+    getBogeTransferRange,
     addTransfer
 }

@@ -12,6 +12,7 @@ type Mutation {
   getAssetValue(symbol: String!, datetime: String!): AssetValue
   getAssetValues(symbol: String!, datetimes:[String]!): [AssetValue!]!
   getBogeTransfers(address: String): [BogeTransfer!]
+  getBogeTransferRange(address: String, startDatetime: String, endDatetime: String): [BogeTransfer!]
   saveBNBValue(id: Int bnbAmount: Float): BogeTransfer
 }
 
