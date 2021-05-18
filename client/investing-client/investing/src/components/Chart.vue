@@ -6,55 +6,50 @@
 import $ from "jquery";
 import axios from "axios";
 import { createChart, CrosshairMode } from "lightweight-charts";
+import date from 'date-and-time';
 
 export default {
   name: "Chart",
   data: function () {
     return {
-      bnbHistory: {
-        payloadSize: 10,
-        bnbKlines: [],
-        bnbKlines_Saved: [],
-        saveCount: 0,
-      },
+      klines: [],
     };
   },
   created: function () {
-    let self = this;
-    this.initChart(self);
+    initChart(this);
+    this.intervalID = setInterval(initChart, 10000, this);
   },
   methods: {
     initChart: initChart,
-    getKlines: getKlines,
     createLightweightChart: createLightweightChart,
   },
 };
 
 function initChart(self) {
-  this.getKlines().then(
-    (res) => {
-      var klines = res.data.data.assetValues;
+  var startDatetime = date.addDays(new Date(), -2);
 
-      klines.map((kline) => {
-        kline.time = (new Date(Number(kline.openTime))).toJSON();
+  getBogeKlines(startDatetime, null)
+      .then(res => {
+          self.klines = res.data.data.getAssetValueRange;
+          createLightweightChart(self);
+          // self.showChart = true;
       });
-      self.bnbHistory.bnbKlines = klines;
-
-      self.createLightweightChart(self);
-    },
-    (error) => {
-      console.log(error);
-    }
-  );
 }
 
-async function getKlines() {
-  var data = {
-    query: `
-        query {
-            assetValues {
-                id
+async function getBogeKlines(startDatetime, endDatetime) {
+    startDatetime = (startDatetime) ? `"${startDatetime.toJSON()}"` : `null`;
+    endDatetime = (endDatetime) ? `"${endDatetime.toJSON()}"` : `null`;
+
+    var data = {
+        query: `
+        mutation {
+            getAssetValueRange(
+                symbol: "BOGE"
+                startDatetime: ${startDatetime}
+                endDatetime: ${endDatetime}
+            ) {
                 symbol
+                interval
                 openTime
                 open
                 high
@@ -62,11 +57,12 @@ async function getKlines() {
                 close
                 volume
                 closeTime
+                numberOfTrades
             }
         }
-        `,
-  };
-  return axios.post("http://localhost:4000/graphql", data);
+        `
+    }
+    return axios.post('http://localhost:4000/graphql', data);
 }
 
 function createLightweightChart(self) {
@@ -97,7 +93,7 @@ function createLightweightChart(self) {
     },
   });
 
-  var candleSeries = chart.addCandlestickSeries({
+  var series = chart.addCandlestickSeries({
     upColor: "rgba(255, 144, 0, 1)",
     downColor: "#000",
     borderDownColor: "rgba(255, 144, 0, 1)",
@@ -106,9 +102,12 @@ function createLightweightChart(self) {
     wickUpColor: "rgba(255, 144, 0, 1)",
   });
 
-  for (var i = 0; i < self.bnbHistory.bnbKlines.length; i++) {
-    candleSeries.update(self.bnbHistory.bnbKlines[i]);
-  }
+  self.klines.forEach(kline => {
+    let utcTimestamp = Number(kline.closeTime) / 1000;
+    series.update({ time: utcTimestamp, open: kline.open, high: kline.high, low: kline.low, close: kline.close });
+  });
+
+  self.chart.chart.timeScale().fitContent();
 }
 </script>
 

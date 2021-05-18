@@ -183,6 +183,21 @@ async function getAssetValues(parent, args, context, info) {
     })
 }
 
+async function getAssetValueRange(parent, args, context, info) {
+    let startDatetime = (args.startDatetime) ? new Date(args.startDatetime) : new Date(2000, 0, 1);
+    let endDatetime = (args.endDatetime) ? new Date(args.endDatetime) : new Date(3000, 0, 1);
+
+    return await context.prisma.assetValue.findMany({
+        where: {
+            AND: [
+                { symbol: args.symbol },
+                { openTime: { gte: startDatetime } },
+                { openTime: { lte: endDatetime } }
+            ]
+        }
+    })
+}
+
 async function getLastSavedTime(parent, args, context, info) {
     let assetValue = await context.prisma.assetValue.findFirst({
         select: { closeTime: true },
@@ -361,6 +376,7 @@ module.exports = {
     addAssetValues,
     getAssetValue,
     getAssetValues,
+    getAssetValueRange,
     getLastSavedTime,
     saveBNBValue,
     getBogeTransfers,

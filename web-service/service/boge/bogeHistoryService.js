@@ -42,9 +42,10 @@ class BogeHistoryService {
                     self.lastSavedKlineTime = (new Date(res[1].data.data.getLastSavedTime)) ? new Date(res[1].data.data.getLastSavedTime)
                         : self.bogeHistory.startDate;
                     
-                    var diff = Math.abs(self.lastSavedTransferTime - self.lastSavedKlineTime);
+                    // var diff = Math.abs(self.lastSavedTransferTime - self.lastSavedKlineTime);
+                    var diff = Math.abs(new Date() - self.lastSavedKlineTime);
                     var minutes = Math.floor((diff/1000)/60);
-                    if (minutes >= 15)
+                    if (minutes >= 30)
                         return self.getTransfers(self.lastSavedKlineTime)
                     else
                         self.processing = false;
@@ -226,7 +227,6 @@ class BogeHistoryService {
             }
         `
         }
-        console.log(data.query);
         return axios.post('http://localhost:4000/graphql', data);
     }
 }

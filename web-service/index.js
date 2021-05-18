@@ -28,5 +28,5 @@ bnbService.start();
 const bogeTransferService = new BogeTransferService(60000);
 bogeTransferService.start();
 
-// const bogeHistoryService = new BogeHistoryService(60000);
-// bogeHistoryService.start();
+const bogeHistoryService = new BogeHistoryService(60000);
+bogeHistoryService.start();
