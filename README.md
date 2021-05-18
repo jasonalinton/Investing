@@ -1,8 +1,4 @@
 # Investing
 Crypto &amp; Stock Trading-Watcher Bot
-::: mermaid
- graph LR;
- A[Wiki supports Mermaid] --> B[Visit https://mermaidjs.github.io/ for Mermaid syntax];
-:::
-[[_TOC_]]
-Test
+
+![Investing App Architecture](Design/assests/architeture/architecture-readme-horizontal.png "Investing App Architecture")
