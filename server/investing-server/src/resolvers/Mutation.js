@@ -214,6 +214,82 @@ async function getLastSavedTime(parent, args, context, info) {
     return lastTime.toJSON();
 }
 
+async function getLastTwoKlines(parent, args, context, info) {
+    let assetValue = await context.prisma.assetValue.findMany({
+        where: { symbol: args.symbol },
+        orderBy: { closeTime: "desc" },
+        take: 2
+    });
+    
+    return assetValue;
+}
+
+async function deleteLastTwoKlines(parent, args, context, info) {
+    try {
+        let assetValue = await context.prisma.assetValue.findMany({
+            where: { symbol: args.symbol },
+            orderBy: { closeTime: "desc" },
+            take: 2
+        });
+
+        assetValue.forEach(async assetValue => {
+            let deleted = await context.prisma.assetValue.delete({
+                where: {
+                    id: assetValue.id
+                }
+            });
+        });
+
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+// Used by the Boge history service to get the get the second to last kline and delete the last 2
+async function getAndDeleteLastKlines(parent, args, context, info) {
+    try {
+        //  Get last 2 klines
+        let klines = await context.prisma.assetValue.findMany({
+            where: {
+                AND: [
+                    { symbol: args.symbol },
+                    { interval: args.interval }
+                ]
+            },
+            orderBy: { openTime: "desc" },
+            take: 2
+        });
+
+        // Delete klines
+        klines.forEach(async kline => {
+            await context.prisma.assetValue.delete({
+                where: {
+                    id: kline.id
+                }
+            });
+        });
+
+        // Get total kline count
+        let klineCount = await context.prisma.assetValue.count({
+            where: {
+                AND: [
+                    { symbol: args.symbol },
+                    { interval: args.interval }
+                ]
+            }
+        });
+        
+        if (klineCount > 0) {
+            return klines[klines.length - 1];
+        } else {
+            return null
+        }
+    } catch {
+        return null;
+    }
+}
+
 async function getBogeTransfers(parent, args, context, info) {
     //var date = moment(args.input.attemptedDateTime).parseZone().format();
     if (args.address) {
@@ -324,52 +400,6 @@ async function addTransfer(parent, args, context, info) {
     console.log("Transfer added: " + transfer_Out.datetime.toJSON());
     return transfer_Out;
 }
-
-// async function addTransfers(parent, args, context, info) {
-//     let transfers = [];
-//     args.transfers.forEach(transfer => {
-//         transfers.push({
-//             datetime: transfer.datetime,
-//             type: transfer.type,
-//             bnbAmount: transfer.bnbAmount,
-//             bogeAmount: transfer.bogeAmount,
-//             bnbUnitValue: transfer.bnbUnitValue,
-//             priceUnit: transfer.priceUnit,
-//             priceTotal: transfer.priceTotal,
-//             senderAddress: transfer.senderAddress,
-//             receiverAddress: transfer.receiverAddress,
-//             txHash: transfer.txHash
-//         });
-//     });
-
-//     var transfers_Out = [];
-//     transfers.forEach(transfer => {
-//         let transfer_Out = context.prisma.bogeTransfers.create({
-//             data: transfer,
-//             select: {
-//                 datetime: true,
-//                 type: true,
-//                 bnbAmount: true,
-//                 bogeAmount: true,
-//                 bnbUnitValue: true,
-//                 priceUnit: true,
-//                 priceTotal: true,
-//                 senderAddress: true,
-//                 receiverAddress: true,
-//                 txHash: true
-//             },
-//         });
-//         console.log("Transfer added: " + transfer_Out.datetime.toJSON());
-//         transfers_Out.push(transfer_Out);
-//     });
-
-//     Promise.allSettled(transfers_Out).then(() => {
-//         return transfers_Out;
-//     })
-
-//     return Promise.resolve(assetValues_Out);
-// }
-
   
 module.exports = {
     addAssetValue,
@@ -378,6 +408,9 @@ module.exports = {
     getAssetValues,
     getAssetValueRange,
     getLastSavedTime,
+    getLastTwoKlines,
+    deleteLastTwoKlines,
+    getAndDeleteLastKlines,
     saveBNBValue,
     getBogeTransfers,
     getBogeTransferRange,

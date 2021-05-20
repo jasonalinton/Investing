@@ -36,19 +36,12 @@ class BogeHistoryService {
         if (self.processing == false) {
             self.processing = true;
 
-            self.getLastSavedTimes(self)
+            self.getAndDeleteLastKlines("BOGE", self.bogeHistory.intervalString)
                 .then((res) => {
-                    self.lastSavedTransferTime = new Date(res[0].data.data.getLastSavedTransferTime);
-                    self.lastSavedKlineTime = (new Date(res[1].data.data.getLastSavedTime)) ? new Date(res[1].data.data.getLastSavedTime)
-                        : self.bogeHistory.startDate;
-                    
-                    // var diff = Math.abs(self.lastSavedTransferTime - self.lastSavedKlineTime);
-                    var diff = Math.abs(new Date() - self.lastSavedKlineTime);
-                    var minutes = Math.floor((diff/1000)/60);
-                    if (minutes >= 30)
-                        return self.getTransfers(self.lastSavedKlineTime)
-                    else
-                        self.processing = false;
+                    self.lastSavedKline = res.data.data.getAndDeleteLastKlines;
+                    self.lastSavedKlineTime = new Date(Number((self.lastSavedKline) ? self.lastSavedKline.openTime : self.bogeHistory.startDate));
+
+                    return self.getTransfers(self.lastSavedKlineTime);
                 }, () => { self.processing = false; })
                 .then((res) => new Promise((resolve) => {
                     self.transfers = res.data.data.getBogeTransferRange;
@@ -63,29 +56,20 @@ class BogeHistoryService {
         }
     }
 
-    async getLastSavedTimes(self) {
-        let transferPromise = self.getLastSavedTransferTime();
-        let klinePromise = self.getLastSavedKlineTime("BOGE");
-
-        return Promise.all([transferPromise, klinePromise]);
-    }
-
-    async getLastSavedTransferTime() {
-        var data = {
-            query: `
-            query {
-                getLastSavedTransferTime 
-            }`
-        }
-        return axios.post('http://localhost:4000/graphql', data);
-    }
-
-    async getLastSavedKlineTime(symbol) {
+    async getAndDeleteLastKlines(symbol, intervalString) {
         var data = {
             query: `
             mutation {
-                getLastSavedTime(symbol: "${symbol}")
-            }`
+                getAndDeleteLastKlines(symbol: "${symbol}", interval: "${intervalString}") {
+                  id
+                  interval
+                  openTime
+                  open
+                  close
+                  closeTime
+                }
+            }
+            `
         }
         return axios.post('http://localhost:4000/graphql', data);
     }
@@ -121,10 +105,10 @@ class BogeHistoryService {
         let symbol = "BOGE";
         let interval = self.bogeHistory.intervalString;
         let total = 0; // Used to determine average price
-        let high = 0;
-        let low = 1000000000;
-        let open = 0;
-        let close = 0;
+        let high = (self.lastSavedKline) ? self.lastSavedKline.open : 0;
+        let low = (self.lastSavedKline) ? self.lastSavedKline.open : 1000000000;
+        let open = (self.lastSavedKline) ? self.lastSavedKline.close : 0;
+        let close = (self.lastSavedKline) ? self.lastSavedKline.close : 0;
         let volume = 0;
         let numberOfTrades = 0;
         let average = 0;
@@ -177,7 +161,6 @@ class BogeHistoryService {
     
             openTime = closeTime;
             closeTime = date.addMinutes(closeTime, 15);
-            console.log(closeTime.toString());
         }
         resolve();
     }
@@ -197,6 +180,7 @@ class BogeHistoryService {
     }
     
     saveKline(symbol, kline, interval) {
+        console.log(kline);
         var data = {
             query: 
             `mutation {
@@ -213,7 +197,7 @@ class BogeHistoryService {
                             volume: ${kline.volume}
                             closeTime: "${kline.closeTime.toJSON()}"
                             quoteAssetVolume: ${(kline.quoteAssetVolume) ? kline.quoteAssetVolume : null}
-                            numberOfTrades: ${(kline.numberOfTrades) ? kline.numberOfTrades : null}
+                            numberOfTrades: ${(kline.numberOfTrades) ? kline.numberOfTrades : 0}
                             takerBuyBaseAssetVolume: ${(kline.takerBuyBaseAssetVolume) ? kline.takerBuyBaseAssetVolume : null}
                             takerBuyQuoreAssetVolume: ${(kline.takerBuyQuoreAssetVolume) ? kline.takerBuyQuoreAssetVolume : null}
                             baseAsset: { symbol: "${symbol}" }

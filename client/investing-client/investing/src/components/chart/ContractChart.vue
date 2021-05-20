@@ -15,16 +15,14 @@ export default {
     },
   data: function () {
     return {
-      chart: {
-        chart: {},
-        width: $(window).width() - 20,
-        height: 500
-      }
+      chart: {},
+      klines: [],
+      height: 500,
     };
   },
   created: function () {
     initChart(this);
-    this.intervalID = setInterval(initChart, 10000, this);
+    this.intervalID = setInterval(initChart, 60000, this);
     window.addEventListener('resize', this.onResize);
   },
   methods: {
@@ -32,7 +30,10 @@ export default {
     createCandelstickChart: createCandelstickChart,
     createAreaChart: createAreaChart,
     onResize() {
-        this.chart.chart.resize(this.chart.width, this.chart.height);
+        this.chart.resize(this.width(), this.height);
+    },
+    width: function () {
+      return $(window).width() - 20;
     },
   },
 };
@@ -85,16 +86,16 @@ async function getBogeKlines(startDatetime, endDatetime) {
 function createCandelstickChart(self) {
   $("#lightweight-chart").empty();
 
-  self.chart.chart = createChart("lightweight-chart", { 
-    width: self.chart.width, 
-    height: self.chart.height,
+  self.chart = createChart("lightweight-chart", { 
+    width: self.width(), 
+    height: self.height,
     layout: {
       backgroundColor: '#1D1D1D',
       textColor: '#d1d4dc',
     },
   });
 
-  const series = self.chart.chart.addCandlestickSeries({
+  const series = self.chart.addCandlestickSeries({
     upColor: '#35b522',
     downColor: '#ff0f23',
     borderDownColor: '#ff0f23',
@@ -103,14 +104,15 @@ function createCandelstickChart(self) {
     wickUpColor: '#35b522',
   });
 
-  self.chart.chart.applyOptions({
+  self.chart.applyOptions({
     priceScale:{
       autoScale: true,
       position: 'right',
     },
     timeScale: {
       fixLeftEdge: true,
-      timeVisible: true
+      timeVisible: true,
+      // fitContent: true
     }
   });
 
@@ -119,29 +121,30 @@ function createCandelstickChart(self) {
     series.update({ time: utcTimestamp, open: kline.open, high: kline.high, low: kline.low, close: kline.close });
   });
 
-  self.chart.chart.timeScale().fitContent();
+  self.chart.timeScale().fitContent();
 }
 
 function createAreaChart(self) {
   $("#lightweight-chart").empty();
   
-    self.chart.chart = createChart("lightweight-chart", { 
-      width: self.chart.width, 
-      height: self.chart.height,
+    self.chart = createChart("lightweight-chart", { 
+      width: self.width(), 
+      height: self.height,
       layout: {
         backgroundColor: '#1D1D1D',
         textColor: '#d1d4dc',
       },
        });
-    const series = self.chart.chart.addAreaSeries();
-    self.chart.chart.applyOptions({
+    const series = self.chart.addAreaSeries();
+    self.chart.applyOptions({
       priceScale:{
         autoScale: true,
         position: 'right',
       },
       timeScale: {
         fixLeftEdge: true,
-        timeVisible: true
+        timeVisible: true,
+        // fitContent: true
       }
     });
 
@@ -150,7 +153,7 @@ function createAreaChart(self) {
         series.update({ time: utcTimestamp, value: kline.close });
     });
 
-    self.chart.chart.timeScale().fitContent();
+    self.chart.timeScale().fitContent();
 }
 </script>
 

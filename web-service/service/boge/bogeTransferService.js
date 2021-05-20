@@ -38,7 +38,7 @@ class BogeTransferService {
             self.getLastSavedTransferTime()
                 .then((res) => new Promise((resolve) => {
                     self.lastSavedTime = new Date(res.data.data.getLastSavedTransferTime);
-                    console.log(`Boge history last saved on ${self.lastSavedTime.toJSON()}`);
+                    console.log(`Last Boge transfer saved on ${self.lastSavedTime.toJSON()}`);
 
                     self.fetchTranfers(self, self.lastSavedTime, resolve);
                 }))

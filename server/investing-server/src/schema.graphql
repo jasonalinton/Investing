@@ -9,6 +9,9 @@ type Mutation {
   addAssetValues(assetValues: [AssetValueInput]): [AssetValue!]!
   addTransfer(transfer: BogeTransferInput): BogeTransfer!
   getLastSavedTime(symbol: String!): String!
+  getLastTwoKlines(symbol: String!, interval: String!): [AssetValue!]!
+  deleteLastTwoKlines(symbol: String!, interval: String!): Boolean!
+  getAndDeleteLastKlines(symbol: String!, interval: String!): AssetValue
   getAssetValue(symbol: String!, datetime: String!): AssetValue
   getAssetValues(symbol: String!, datetimes:[String]!): [AssetValue!]!
   getAssetValueRange(symbol: String!, startDatetime: String, endDatetime: String): [AssetValue!]!
