@@ -1,6 +1,11 @@
 const app = require('express')();
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "http://localhost:8080",
+        methods: ["GET", "POST"]
+      }
+});
 const port = 3050;
 import BNBService from './service/bnbService.js';
 import BogeTransferService from './service/boge/bogeTransferService';
@@ -20,16 +25,22 @@ io.on('connection', (socket) => {
     socket.on('another event', (data) => {
         console.log(data);
     });
+
+    socket.on('emit-transfer-added', transfer => {
+        io.emit('transfer-added', transfer);
+    });
 });
+
 
 const bnbService = new BNBService(60000);
 bnbService.start()
     .then(() => {
-        const bogeTransferService = new BogeTransferService(60000);
+        const bogeTransferService = new BogeTransferService(60000, "http://localhost:3050");
         return bogeTransferService.start();
     })
     .then(() => {
         const bogeHistoryService = new BogeHistoryService(60000);
         bogeHistoryService.start();
     });
+
 

@@ -58,6 +58,8 @@
 <script>
 import axios from "axios";
 import date from 'date-and-time';
+// import sockotIO from 'socket.io';
+import { io } from "socket.io-client";
 
 export default {
     name: "TransferTable",
@@ -75,7 +77,8 @@ export default {
     },
     created: function () {
         start(this);
-        this.intervalID = setInterval(start, 10000, this);
+        initSocket(this);
+        //this.intervalID = setInterval(start, 10000, this);
     },
     computed: {},
     methods: {
@@ -98,6 +101,14 @@ function start(self) {
             .then(res => {
                 setTransfers(self, res.data.data.getBogeTransferRange);
             });
+}
+
+function initSocket(self) {
+    self.socket = io("http://localhost:3050");
+    self.socket.on('transfer-added', (transfer) => {
+        transfer.datetime = new Date(Number(transfer.datetime));
+        self.transfers.splice(0, 0, transfer);
+    });
 }
 
 async function getTransfers(startDatetime, endDatetime) {

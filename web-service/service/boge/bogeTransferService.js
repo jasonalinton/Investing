@@ -1,4 +1,5 @@
 import axios from "axios";
+import { io } from "socket.io-client";
 
 class BogeTransferService {
     intervalID;
@@ -12,11 +13,13 @@ class BogeTransferService {
     pancakeAddress = "0xb9ace332c55779ec5324fabb83a73fb33f7066bf";
     pancake2Address = "0x15Ef0BE23194e4f21a4c4B871a78985c38e0CE39";
 
-    constructor(serviceInterval) {
+    constructor(serviceInterval, socketURL) {
         this.serviceInterval = serviceInterval;
+        this.socket = io(socketURL);
     }
 
-    start() {
+    start(socket) {
+        //this.socket2 = socket;
         this.intervalID = setInterval(this.syncTransferTable, this.serviceInterval, this);
         return this.syncTransferTable(this);
     }
@@ -325,9 +328,12 @@ class BogeTransferService {
     }
     
     saveTransfers(self, resolve) {
-        let transfer = self.newTransfers.shift();
+        let transfer = self.newTransfers.shift(); 
         self.saveTransfer(transfer)
-            .then(() => {
+            .then((res) => {
+                self.socket.emit('emit-transfer-added', res.data.data.addTransfer);
+                //self.socket2.emit('transfer-added', res.data.data.addTransfer);
+
                 self.lastSavedTime = transfer.datetime;
                 if (self.newTransfers.length > 0) {
                     self.saveTransfers(self, resolve);
