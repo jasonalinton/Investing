@@ -18,8 +18,10 @@ class BogeHistoryService {
     }
 
     start() {
-        this.run(this);
-        this.intervalID = setInterval(this.run, this.serviceInterval, this);
+        return new Promise(resolve => {
+            this.run(this).then(resolve)
+            this.intervalID = setInterval(this.run, this.serviceInterval, this);
+        });
     }
 
     restart() {
@@ -33,27 +35,31 @@ class BogeHistoryService {
     }
 
     run(self) {
-        if (self.processing == false) {
-            self.processing = true;
+        return new Promise((resolveRun) => {
+            if (self.processing == false) {
+                self.processing = true;
 
-            self.getAndDeleteLastKlines("BOGE", self.bogeHistory.intervalString)
-                .then((res) => {
-                    self.lastSavedKline = res.data.data.getAndDeleteLastKlines;
-                    self.lastSavedKlineTime = new Date(Number((self.lastSavedKline) ? self.lastSavedKline.openTime : self.bogeHistory.startDate));
+                self.getAndDeleteLastKlines("BOGE", self.bogeHistory.intervalString)
+                    .then((res) => {
+                        self.lastSavedKline = res.data.data.getAndDeleteLastKlines;
+                        self.lastSavedKlineTime = new Date(Number((self.lastSavedKline) ? self.lastSavedKline.openTime : self.bogeHistory.startDate));
 
-                    return self.getTransfers(self.lastSavedKlineTime);
-                }, () => { self.processing = false; })
-                .then((res) => new Promise((resolve) => {
-                    self.transfers = res.data.data.getBogeTransferRange;
-                    self.createBogeKlines(self, resolve);
-                }), () => { self.processing = false; })
-                .then(() => new Promise((resolve) => {
-                    self.saveHistory(self, resolve);
-                }), () => { self.processing = false; })
-                .then(() => {
-                    self.processing = false;
-                });
-        }
+                        return self.getTransfers(self.lastSavedKlineTime);
+                    }, () => { self.processing = false; })
+                    .then((res) => new Promise((resolve) => {
+                        self.transfers = res.data.data.getBogeTransferRange;
+                        self.createBogeKlines(self, resolve);
+                    }), () => { self.processing = false; })
+                    .then(() => new Promise((resolve) => {
+                        self.saveHistory(self, resolve);
+                    }), () => { self.processing = false; })
+                    .then(() => {
+                        self.processing = false;
+                        resolveRun();
+                    });
+            }
+        })
+        
     }
 
     async getAndDeleteLastKlines(symbol, intervalString) {

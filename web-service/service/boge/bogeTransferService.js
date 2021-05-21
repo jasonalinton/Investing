@@ -17,8 +17,8 @@ class BogeTransferService {
     }
 
     start() {
-        this.syncTransferTable(this);
         this.intervalID = setInterval(this.syncTransferTable, this.serviceInterval, this);
+        return this.syncTransferTable(this);
     }
 
     restart() {
@@ -32,34 +32,37 @@ class BogeTransferService {
     }
 
     syncTransferTable(self) {
-        if (self.processing == false) {
-            self.processing = true;
-
-            self.getLastSavedTransferTime()
-                .then((res) => new Promise((resolve) => {
-                    self.lastSavedTime = new Date(res.data.data.getLastSavedTransferTime);
-                    console.log(`Last Boge transfer saved on ${self.lastSavedTime.toJSON()}`);
-
-                    self.fetchTranfers(self, self.lastSavedTime, resolve);
-                }))
-                .then(() => { 
-                    return self.getBNBHistory(self); 
-                })
-                .then((res) => new Promise((resolve) => {
-                    self.bnbHistory = res.data.data.getAssetValues;
-                    self.fetchBNBTransfers(self, resolve);
-                }))
-                .then(() => new Promise((resolve) => {
-                    self.setBNBValues(self);   
-                    
-                    self.saveTransfers(self, resolve);
-
-                    console.log(`Saving transfers`); 
-                }))
-                .then(() => {
-                    self.processing = false;
-                });
-        }
+        return new Promise((resolveRun) => {
+            if (self.processing == false) {
+                self.processing = true;
+    
+                self.getLastSavedTransferTime()
+                    .then((res) => new Promise((resolve) => {
+                        self.lastSavedTime = new Date(res.data.data.getLastSavedTransferTime);
+                        console.log(`Last Boge transfer saved on ${self.lastSavedTime.toJSON()}`);
+    
+                        self.fetchTranfers(self, self.lastSavedTime, resolve);
+                    }))
+                    .then(() => { 
+                        return self.getBNBHistory(self); 
+                    })
+                    .then((res) => new Promise((resolve) => {
+                        self.bnbHistory = res.data.data.getAssetValues;
+                        self.fetchBNBTransfers(self, resolve);
+                    }))
+                    .then(() => new Promise((resolve) => {
+                        self.setBNBValues(self);   
+                        
+                        self.saveTransfers(self, resolve);
+    
+                        console.log(`Saving transfers`); 
+                    }))
+                    .then(() => {
+                        self.processing = false;
+                        resolveRun();
+                    });
+            }
+        });
     }
 
     async getLastSavedTransferTime() {
@@ -110,7 +113,6 @@ class BogeTransferService {
                 }
             `,
         };
-    
         axios.defaults.headers.post["X-API-KEY"] = "BQYAuAhYKrbYFPY5xPeYEH5ZbghqLaGF";
         axios.post("https://graphql.bitquery.io", data)
             .then((res) => {
@@ -260,23 +262,34 @@ class BogeTransferService {
     
     setBNBValues(self) {
         self.newTransfers.map((transfer) => {
-            self.bnbHistory.some((kline) => {
+            let kline = self.bnbHistory.find(kline => {
                 let klineDatetime = new Date(Number(kline.openTime));
                 let transferDatetime = new Date(transfer.datetime.toJSON());
                 transferDatetime.setSeconds(0); // Set to zero for comparison
     
-                if (klineDatetime.getTime() == transferDatetime.getTime()) {
-                    transfer.bnbUnitValue = kline.open;
-                    transfer.bnbValue = transfer.bnbAmount * transfer.bnbUnitValue;
-    
-                    if (transfer.bnbAmount && transfer.bnbAmount != -1) {
-                        transfer.priceTotal = transfer.bnbAmount * transfer.bnbUnitValue;
-                        transfer.priceUnit = transfer.priceTotal / transfer.amount;
-                    }
-                    
+                if (klineDatetime.getTime() == transferDatetime.getTime())
                     return true;
-                }
             });
+
+            if (kline) {
+                transfer.bnbUnitValue = kline.open;
+                transfer.bnbValue = transfer.bnbAmount * transfer.bnbUnitValue;
+
+                if (transfer.bnbAmount && transfer.bnbAmount != -1) {
+                    transfer.priceTotal = transfer.bnbAmount * transfer.bnbUnitValue;
+                    transfer.priceUnit = transfer.priceTotal / transfer.amount;
+                } else {
+                }
+            } else {
+                // Null price means BNB value wasn't available at the time of processing
+                // Price & BNB value should be set later when BNB value is available
+                transfer.bnbUnitValue = null;
+                transfer.bnbValue = null;
+
+                transfer.priceTotal = null;
+                transfer.priceUnit = null;
+
+            }
         });
     }
     

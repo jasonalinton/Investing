@@ -13,7 +13,10 @@ class BNBService {
     }
 
     start() {
-        this.intervalID = setInterval(this.getAndSaveNewBNBValues, this.serviceInterval, this);
+        return new Promise(resolve => {
+            this.getAndSaveNewBNBValues(this).then(resolve);
+            this.intervalID = setInterval(this.getAndSaveNewBNBValues, this.serviceInterval, this);
+        });
     }
 
     restart() {
@@ -27,7 +30,8 @@ class BNBService {
     }
 
     getAndSaveNewBNBValues(self) {
-        self.getLastSavedTime()
+        return new Promise((resolveRun) => {
+            self.getLastSavedTime()
             .then((res) => new Promise((resolve) => {
                 let lastSavedTime = new Date(res.data.data.getLastSavedTime);
                 console.log(`BNB history last saved on ${lastSavedTime.toJSON()}`);
@@ -42,7 +46,9 @@ class BNBService {
             }))
             .then(() => {
                 self.processing = false;
+                resolveRun();
             });
+        });
     }
 
     async getLastSavedTime() {

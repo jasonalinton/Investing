@@ -58,12 +58,10 @@
 <script>
 import axios from "axios";
 import date from 'date-and-time';
-// import MyChart from "./MyChart.vue";
 
 export default {
     name: "TransferTable",
     components: {
-    // MyChart
   },
     props: {
         tableHeight: String,
@@ -72,11 +70,7 @@ export default {
     data: function () {
         return {
             transfers: [],
-            // klines: [],
-            // showChart: false,
             shouldLog: false,
-            // chartType: "candelstick",
-            // chartType: "area"
         };
     },
     created: function () {
