@@ -44,7 +44,7 @@ model AssetValue {
 }
 
 model BogeTransfers {
-  id Int @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   datetime        DateTime?
   type            String?
   bnbAmount       Float?
@@ -55,6 +55,26 @@ model BogeTransfers {
   senderAddress   String?
   receiverAddress String?
   txHash          String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @default(now()) @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+}
+
+model BogeWallet {
+  id              Int       @id @default(autoincrement())
+  datetime        DateTime?
+  balance         Float?
+  address         String?
+  name            String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+}
+
+model BogeLiquidity {
+  id              Int       @id @default(autoincrement())
+  datetime        DateTime?
+  bnbBalance      Float?
+  bogeBalance     Float?
+  address         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
 }

@@ -1,0 +1,19 @@
+-- CreateTable
+CREATE TABLE "BogeWallet" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "datetime" DATETIME,
+    "balance" REAL,
+    "address" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "BogeLiquidity" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "datetime" DATETIME,
+    "bogeBalance" REAL,
+    "bnbBalance" REAL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

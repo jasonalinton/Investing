@@ -11,7 +11,7 @@
       <!-- Header -->
       <div class="row g-0">
         <div class="col">
-          <BalanceInfo></BalanceInfo>
+          <BalanceInfo :address='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'></BalanceInfo>
         </div>
       </div>
       <!-- Chart -->
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import BalanceInfo from "./components/BalanceInfo.vue";
+import BalanceInfo from "./components/info/BalanceInfo.vue";
 import ContractChart from "./components/chart/ContractChart.vue";
 // import Chart from "./components/Chart.vue";
 // import MyChart from "./components/MyChart.vue";

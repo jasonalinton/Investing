@@ -385,6 +385,7 @@ async function addTransfer(parent, args, context, info) {
             txHash: transfer.txHash
         },
         select: {
+            id: true,
             datetime: true,
             type: true,
             bnbAmount: true,
@@ -400,6 +401,66 @@ async function addTransfer(parent, args, context, info) {
     console.log("Transfer added: " + transfer_Out.datetime.toJSON());
     return transfer_Out;
 }
+
+async function getWalletBalance(parent, args, context, info) {
+    let bogeWallet;
+    if (args.datetime && args.datetime) {
+        bogeWallet = await context.prisma.bogeWallet.findFirst({
+            where: {
+                AND: [
+                    { address: args.address },
+                    { datetime: { lte: new Date(args.datetime) } }
+                ]
+            },
+            orderBy: { datetime: "desc" },
+        });
+
+        if (!bogeWallet) {
+            // If datetime is before saved record, return the earliest record
+            bogeWallet = await context.prisma.bogeWallet.findFirst({
+                where: { address: args.address },
+                orderBy: { datetime: "asc" },
+            });
+        }
+        
+    } else {
+        bogeWallet = await context.prisma.bogeWallet.findFirst({
+            where: { address: args.address },
+            orderBy: { datetime: "desc" },
+        });
+    }
+
+    console.log(`Got wallet balance for ${args.address}:  ${bogeWallet.balance}BOGE`);
+    return bogeWallet;
+}
+
+async function addWalletBalance(parent, args, context, info) {
+    var bogeWallet = await context.prisma.bogeWallet.create({
+        data: {
+            datetime: args.datetime,
+            balance: args.balance,
+            name: args.name,
+            address: args.address
+        }
+    });
+
+    console.log(`Wallet balance added for ${args.datetime}: ${args.address}  -  ${args.balance}BOGE`);
+    return bogeWallet;
+}
+
+async function addBogeLiquidity(parent, args, context, info) {
+    var bogeLiquidity = await context.prisma.bogeLiquidity.create({
+        data: {
+            datetime: args.datetime,
+            bnbBalance: args.bnbBalance,
+            bogeBalance: args.bogeBalance,
+            address: args.address
+        }
+    });
+
+    console.log(`Boge liquidity record added for ${(new Date(args.datetime)).toJSON()}: ${args.bnbBalance}BNB - ${args.bogeBalance}BOGE`);
+    return bogeLiquidity;
+}
   
 module.exports = {
     addAssetValue,
@@ -414,5 +475,8 @@ module.exports = {
     saveBNBValue,
     getBogeTransfers,
     getBogeTransferRange,
-    addTransfer
+    addTransfer,
+    getWalletBalance,
+    addWalletBalance,
+    addBogeLiquidity
 }

@@ -286,11 +286,11 @@ class BogeTransferService {
             } else {
                 // Null price means BNB value wasn't available at the time of processing
                 // Price & BNB value should be set later when BNB value is available
-                transfer.bnbUnitValue = null;
-                transfer.bnbValue = null;
+                // transfer.bnbUnitValue = null;
+                // transfer.bnbValue = null;
 
-                transfer.priceTotal = null;
-                transfer.priceUnit = null;
+                // transfer.priceTotal = null;
+                // transfer.priceUnit = null;
 
             }
         });
@@ -332,15 +332,16 @@ class BogeTransferService {
         self.saveTransfer(transfer)
             .then((res) => {
                 self.socket.emit('emit-transfer-added', res.data.data.addTransfer);
-                //self.socket2.emit('transfer-added', res.data.data.addTransfer);
-
+                
                 self.lastSavedTime = transfer.datetime;
                 if (self.newTransfers.length > 0) {
                     self.saveTransfers(self, resolve);
                 } else {
                     resolve();
                 }
-            });
+            }, (error) => {
+                console.log(error);
+            } );
     }
     
     async saveTransfer(transfer) {
@@ -359,6 +360,7 @@ class BogeTransferService {
                     receiverAddress: "${transfer.receiver}"
                     txHash: "${transfer.txHash}"
                 }) {
+                    id
                     datetime
                     type
                     bnbAmount

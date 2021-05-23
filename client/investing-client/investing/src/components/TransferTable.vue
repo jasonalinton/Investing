@@ -1,13 +1,7 @@
 <template>
     <div class="boge-table col" :style="{ height: tableHeight }">
-        <!-- <div class="row">
-            <div class="col">
-                <MyChart v-if="showChart" :bnbKlines="klines" :type="chartType"></MyChart>
-            </div>
-        </div> -->
         <div class="row">
             <div class="col">
-                <!-- <table class="position-static transfer table table-dark table-hover" :style="{ 'margin-top': '580px' }"> -->
                 <table class="transfer table table-dark table-hover">
                     <thead class="thead-light">
                         <tr>
@@ -19,8 +13,8 @@
                             <th class="d-none d-md-table-cell">TxHash</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr v-for="(transfer, index) in transfers" :key="index" :class="transfer.type" :data-sender="transfer.senderAddress" :data-reciever="transfer.receiverAddress">
+                    <tbody is="transition-group" name="transfer-list" v-cloak>
+                        <tr v-for="(transfer, index) in transfers" :key="transfer.id" :class="transfer.type" :data-sender="transfer.senderAddress" :data-reciever="transfer.receiverAddress">
                             <td class="d-none d-md-table-cell center">{{ index + 1 }}</td>
                             <td>
                                 <div class="d-flex flex-column">
@@ -58,7 +52,6 @@
 <script>
 import axios from "axios";
 import date from 'date-and-time';
-// import sockotIO from 'socket.io';
 import { io } from "socket.io-client";
 
 export default {
@@ -78,7 +71,6 @@ export default {
     created: function () {
         start(this);
         initSocket(this);
-        //this.intervalID = setInterval(start, 10000, this);
     },
     computed: {},
     methods: {
@@ -121,15 +113,16 @@ async function getTransfers(startDatetime, endDatetime) {
             getBogeTransferRange(
                 startDatetime: ${startDatetime}, 
                 endDatetime: ${endDatetime}) {
-                datetime
-                type
-                bnbAmount
-                bogeAmount
-                priceUnit
-                priceTotal
-                senderAddress
-                receiverAddress
-                txHash
+                    id
+                    datetime
+                    type
+                    bnbAmount
+                    bogeAmount
+                    priceUnit
+                    priceTotal
+                    senderAddress
+                    receiverAddress
+                    txHash
             }
             }
         `
@@ -142,6 +135,7 @@ function setTransfers(self, transfers) {
     // Remove bad transfers
     transfers.forEach(transfer => {
         if (transfer.priceUnit >= 0 && transfer.priceUnit <= 10) {
+            transfer.id = Number(transfer.id);
             transfer.datetime = new Date(Number(transfer.datetime));
             transfers_temp.push(transfer);
         }
@@ -152,6 +146,19 @@ function setTransfers(self, transfers) {
 </script>
 
 <style>
+
+[v-cloak] {
+    display: none;
+}
+
+.transfer-list-leave-to, .transfer-list-enter {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.transfer-list-enter-active, .transfer-list-leave-active {
+    transition: all 1s;
+}
 
 td.center {
     font-size: 14px;

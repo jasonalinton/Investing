@@ -1,6 +1,5 @@
 import axios from "axios";
 import date from 'date-and-time';
-import e from "express";
 
 class BogeHistoryService {
     intervalID;
@@ -186,7 +185,6 @@ class BogeHistoryService {
     }
     
     saveKline(symbol, kline, interval) {
-        console.log(kline);
         var data = {
             query: 
             `mutation {
