@@ -49,6 +49,10 @@ class BogeWalletService {
                 if (self.walletsQueue.length == 0) {
                     clearInterval(self.requestIntervalID);
                 }
+
+                if (res.data.result == "NaN") {
+                    console.log("Not a number")
+                }
                 
                 return self.saveWalletBalance(new Date(), res.data.result, wallet);
             }, error => { console.log(error.response.data.errors) })
