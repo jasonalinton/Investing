@@ -448,6 +448,17 @@ async function addWalletBalance(parent, args, context, info) {
     return bogeWallet;
 }
 
+async function getBogeLiquidity(parent, args, context, info) {
+    var bogeLiquidity = await context.prisma.bogeLiquidity.findFirst({
+        where: {
+            datetime: { lte: new Date(args.datetime) }
+        }
+    });
+
+    console.log(`Got BOGE liquidity: ${bogeLiquidity.bnbBalance}BNB  :  ${bogeLiquidity.bogeBalance}BOGE`);
+    return bogeLiquidity;
+}
+
 async function addBogeLiquidity(parent, args, context, info) {
     var bogeLiquidity = await context.prisma.bogeLiquidity.create({
         data: {
@@ -478,5 +489,6 @@ module.exports = {
     addTransfer,
     getWalletBalance,
     addWalletBalance,
+    getBogeLiquidity,
     addBogeLiquidity
 }
