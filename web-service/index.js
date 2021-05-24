@@ -44,7 +44,7 @@ bnbService.start()
         bogeHistoryService.start();
     });
 
-
+// Running these services at the same time could cause too many requests being sent to BSCScan at one time
 const bogeContractService = new BogeContractService(60000); // Every minute
 bogeContractService.start()
     .then(() => {

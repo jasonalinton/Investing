@@ -38,7 +38,7 @@ class BogeWalletService {
 
     run(self) {
         self.walletsQueue = self.wallets.slice();
-        self.requestIntervalID = setInterval(self.getWalletBalances, 250, self);
+        self.requestIntervalID = setInterval(self.getWalletBalances, 500, self);
     }
 
     async getWalletBalances(self) {
@@ -50,10 +50,12 @@ class BogeWalletService {
                     clearInterval(self.requestIntervalID);
                 }
 
-                if (res.data.result == "NaN") {
-                    console.log("Not a number")
+                if (isNaN(res.data.result) || res.data.result == "Max rate limit reached") {
+                    console.log("Not a number");
+                    return
                 }
                 
+                console.log(res.data.result);
                 return self.saveWalletBalance(new Date(), res.data.result, wallet);
             }, error => { console.log(error.response.data.errors) })
             .then(res => {

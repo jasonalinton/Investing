@@ -12,8 +12,13 @@ class BogeContractService {
     }
 
     start(socket) {
-        this.intervalID = setInterval(this.run, this.serviceInterval, this);
+        try {
+            this.intervalID = setInterval(this.run, this.serviceInterval, this);
         return this.run(this);
+        } catch (error) {
+            console.log(error)
+        }
+        
     }
 
     restart() {
@@ -28,8 +33,9 @@ class BogeContractService {
 
     async run(self) {
         return new Promise((resolve) => {
-            const BOGE9Promise = self.getLiquidity(self, self.pancakeAddress.BOGE_9);
-            const RouterV2Promise = self.getLiquidity(self, self.pancakeAddress.RouterV2);
+            let datetime = new Date();
+            const BOGE9Promise = self.getLiquidity(self, datetime, self.pancakeAddress.BOGE_9);
+            const RouterV2Promise = self.getLiquidity(self, datetime, self.pancakeAddress.RouterV2);
 
             Promise.all([BOGE9Promise, RouterV2Promise]).then(values => {
                 resolve();
@@ -37,7 +43,7 @@ class BogeContractService {
         }, error => { console.log(error) });
     }
 
-    async getLiquidity(self, pancakeAddress) {
+    async getLiquidity(self, datetime, pancakeAddress) {
         return new Promise((resolve) => {
             const bnbPromise = self.getBNBBalance(pancakeAddress);
             const bogePromise = self.getBOGEBalance(pancakeAddress);
@@ -46,7 +52,7 @@ class BogeContractService {
                 const bnbBalance = values[0].data.result;
                 const bogeBalance = values[1].data.result;
 
-                self.saveBogeLiquidity(new Date(), bnbBalance, bogeBalance, pancakeAddress)
+                self.saveBogeLiquidity(datetime, bnbBalance, bogeBalance, pancakeAddress)
                     .then(() => { }, error => { console.log(error.response.data.errors) })
 
                 resolve();
