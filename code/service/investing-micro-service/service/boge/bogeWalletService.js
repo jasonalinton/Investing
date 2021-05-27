@@ -44,24 +44,29 @@ class BogeWalletService {
 
     async getWalletBalances(self) {
         let wallet = self.walletsQueue.shift();
+        if (wallet) {
+            self.getWalletBalance(wallet.address)
+                .then(res => {
+                    if (self.walletsQueue.length == 0) {
+                        clearInterval(self.requestIntervalID);
+                    }
 
-        self.getWalletBalance(wallet.address)
-            .then(res => {
-                if (self.walletsQueue.length == 0) {
-                    clearInterval(self.requestIntervalID);
-                }
-
-                if (isNaN(res.data.result) || res.data.result == "Max rate limit reached") {
-                    console.log("Not a number");
-                    return
-                }
-                
-                console.log(res.data.result);
-                return self.saveWalletBalance(new Date(), res.data.result, wallet);
-            }, error => { console.log(error.response.data.errors) })
-            .then(res => {
-                console.log(res.data.data.addWalletBalance);
-            }, error => { console.log(error.response.data.errors) });
+                    if (isNaN(res.data.result) || res.data.result == "Max rate limit reached") {
+                        console.log("Not a number");
+                        return
+                    }
+                    
+                    console.log(res.data.result);
+                    return self.saveWalletBalance(new Date(), res.data.result, wallet);
+                }, error => { console.log(error.response.data.errors) })
+                .then(res => {
+                    if (res) {
+                        console.log(res.data.data.addWalletBalance);
+                    } else
+                        console.log("Error saving wallet balance");
+                        console.log(wallet);
+                }, error => { console.log(error.response.data.errors) });
+        }
     }
 
     async getWalletBalance(address) {

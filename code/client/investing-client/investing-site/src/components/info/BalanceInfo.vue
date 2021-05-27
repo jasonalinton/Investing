@@ -2,7 +2,7 @@
   <div class="portfolio d-flex flex-row align-items-center">
     <!-- Numbers -->
     <div class="numbers d-flex flex-column ">
-      <div class="value">{{ balance.toFixed(2) }}</div>
+      <div class="value">{{ Number(balance.toFixed(2)).toLocaleString() }}</div>
       <div v-if="timeframe" class="d-flex flex-row justify-content-evenly">
         <span class="change">
           {{ timeframe.change.balance.toFixed(2) }} / {{ timeframe.change.percent.toFixed(1) }}%

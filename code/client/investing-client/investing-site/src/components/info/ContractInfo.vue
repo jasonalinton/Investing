@@ -91,6 +91,7 @@ function weekAgo() {
 function monthAgo() {
   return date.addMonths(new Date(), -1);
 }
+//
 </script>
 
 <style>
@@ -100,20 +101,20 @@ function monthAgo() {
   margin-bottom: 12px;
 }
 
-.price {
+.contract.info .price {
   font-size: 48px;
   line-height: 58px;
   color: #4df832;
 }
 
-.change {
+.contract.info .change {
     font-size: 20px;
     line-height: 24px;
     color: #999999;
     margin-left: 4px;
 }
 
-.timeframe {
+.contract.info .timeframe {
   margin-left: 5px;
   width: 48px;
   height: 24px;
@@ -125,7 +126,7 @@ function monthAgo() {
   border-radius: 4px;
 }
 
-.logo {
+.contract.info .logo {
   margin-left: 24px;
   /* margin-top: 16px; */
 }

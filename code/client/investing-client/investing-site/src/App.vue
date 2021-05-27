@@ -9,11 +9,16 @@
   >
     <div class="col">
       <!-- Header -->
-      <div class="row g-0">
-        <div class="col">
-          <div class="d-flex flex-row justify-content-between">
+      <div class="row g-4">
+        <div class="col-auto">
+          <div class="d-flex flex-row justify-content-start">
             <ContractInfo :address='"0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"'></ContractInfo>
             <BalanceInfo :address='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'></BalanceInfo>
+          </div>
+        </div>
+        <div class="col" :style="{'overflow': 'scroll'}">
+          <div class="d-flex flex-row justify-content-start align-items-center" :style="{'height': '100%'}">
+            <AssetInfo v-for="(assetInfo, index) in assetInfos" :key="index" :assetInfo="assetInfo"></AssetInfo>
           </div>
         </div>
       </div>
@@ -34,9 +39,8 @@
 <script>
 import ContractInfo from "./components/info/ContractInfo.vue";
 import BalanceInfo from "./components/info/BalanceInfo.vue";
+import AssetInfo from "./components/info/AssetInfo.vue";
 import ContractChart from "./components/chart/ContractChart.vue";
-// import Chart from "./components/Chart.vue";
-// import MyChart from "./components/MyChart.vue";
 import TransferTable from "./components/TransferTable.vue";
 
 export default {
@@ -44,8 +48,8 @@ export default {
   components: {
     ContractInfo,
     BalanceInfo,
+    AssetInfo,
     ContractChart,
-    // MyChart,
     TransferTable,
   },
   data: function () {
@@ -59,21 +63,47 @@ export default {
           bottom: 0,
         },
       },
-      assetInfo: {
+      assetInfos: [
+        {
           name: "Cardano",
           symbol: "ADA",
           balance: 376.7509,
           value: 655.5,
           kLines: [],
           address: "",
-          change: {},
+          change: { timeframe: "24hrs", balance: null, amount: 5859.997, percent: 18, series: [
+            { time: '2018-10-19', value: 219.31 },
+            { time: '2018-10-22', value: 220.65 },
+            { time: '2018-10-23', value: 222.73 },
+            { time: '2018-10-24', value: 215.09 },
+            { time: '2018-10-25', value: 219.80 },
+          ] },
           changes: [
-              { timeframe: "24hrs", balance: null, amount: 585, percent: 18 },
-              { timeframe: "1w", balance: null, amount: null, percent: null },
-              { timeframe: "30d", balance: null, amount: null, percent: null },
-              { timeframe: "1hr", balance: null, amount: null, percent: null }
+              { timeframe: "24hrs", balance: 5574, amount: 5859.997, percent: 18 },
+              { timeframe: "1w", balance: 9874, amount: 1058, percent: 5 },
+              { timeframe: "30d", balance: 654654, amount: 855, percent: 5.7 },
+              { timeframe: "1hr", balance: 8879, amount: 585, percent: 1255 }
           ]
-      }
+        },
+        {
+          name: "Binance Chain",
+          symbol: "BNB",
+          balance: 1.6300005,
+          value: 1058.57,
+          kLines: [],
+          address: "",
+          change: { timeframe: "24hrs", balance: null, amount: -432, percent: 9, series: [
+            { time: '2018-11-08', value: 208.49 },
+            { time: '2018-11-09', value: 204.47 },
+          ] },
+          changes: [
+              { timeframe: "24hrs", balance: 5574, amount: 5859.997, percent: 18 },
+              { timeframe: "1w", balance: 9874, amount: 1058, percent: 5 },
+              { timeframe: "30d", balance: 654654, amount: 855, percent: 5.7 },
+              { timeframe: "1hr", balance: 8879, amount: 585, percent: 1255 }
+          ]
+        },
+      ]
     };
   },
   created: function () {
@@ -87,7 +117,7 @@ export default {
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: SF Pro, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

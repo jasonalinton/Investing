@@ -42,7 +42,7 @@ class BogeTransferService {
                 self.getLastSavedTransferTime()
                     .then((res) => new Promise((resolve) => {
                         self.lastSavedTime = new Date(res.data.data.getLastSavedTransferTime);
-                        console.log(`Last Boge transfer saved on ${self.lastSavedTime.toJSON()}`);
+                        console.log(`Last Boge transfer saved on ${formatDate(self.lastSavedTime)}`);
     
                         self.fetchTranfers(self, self.lastSavedTime, resolve);
                     }))
@@ -382,6 +382,10 @@ class BogeTransferService {
         }
         return axios.post('http://localhost:4000/graphql', data);
     }
+}
+
+function formatDate(date) {
+    return new Intl.DateTimeFormat([], { dateStyle: 'short', timeStyle: 'short' }).format(date)
 }
 
 export default BogeTransferService;

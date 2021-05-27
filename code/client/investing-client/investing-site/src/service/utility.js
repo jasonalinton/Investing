@@ -22,4 +22,8 @@ function test() {
 //     test
 // }
 
+function currency(number) {
+    return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' }).format(number);
+}
+
 export default test;

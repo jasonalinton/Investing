@@ -32,7 +32,7 @@ class BNBService {
             self.getLastSavedTime()
             .then((res) => new Promise((resolve) => {
                 let lastSavedTime = new Date(res.data.data.getLastSavedTime);
-                console.log(`BNB history last saved on ${lastSavedTime.toJSON()}`);
+                console.log(`BNB history last saved on ${formatDate(lastSavedTime)}`);
 
                 if (!self.processing) {
                     self.processing = true;
@@ -90,7 +90,7 @@ class BNBService {
                 }
 
                 var lastCloseDate = new Date(self.klines[self.klines.length - 1].closeTime);
-                console.log(`${lastCloseDate.toString()} ${res.data.length}`);
+                console.log(`${res.data.length} new BNB records`);
 
                 if (lastCloseDate < new Date()) {
                     self.getBNBHistory(self, lastCloseDate, resolve);
@@ -151,6 +151,10 @@ class BNBService {
         }
         return axios.post('http://localhost:4000/graphql', data);
     }
+}
+
+function formatDate(date) {
+    return new Intl.DateTimeFormat([], { dateStyle: 'short', timeStyle: 'short' }).format(date)
 }
 
 export default BNBService;
