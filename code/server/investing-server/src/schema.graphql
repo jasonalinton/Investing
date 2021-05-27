@@ -2,6 +2,7 @@ type Query {
   assetValues: [AssetValue!]!
   bogeTransfers: [BogeTransfer!]!
   getLastSavedTransferTime: String!
+  getBogePrice: Float!
 }
 
 type Mutation {
@@ -129,6 +130,7 @@ type BogeLiquidity {
   datetime:    String!
   bogeBalance: Float!
   bnbBalance:  Float!
+  price:       Float!
   address:     String!
 }
 
@@ -137,5 +139,6 @@ input BogeLiquidityInput {
   datetime:    String!
   bogeBalance: Float!
   bnbBalance:  Float!
+  price:       Float!
   address:     String!
 }

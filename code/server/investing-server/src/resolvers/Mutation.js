@@ -430,7 +430,7 @@ async function getWalletBalance(parent, args, context, info) {
         });
     }
 
-    console.log(`Got wallet balance for ${args.address}:  ${bogeWallet.balance}BOGE`);
+    console.log(`Got wallet balance for ${args.address}:  ${bogeWallet.balance.toFixed(2)} BOGE`);
     return bogeWallet;
 }
 
@@ -444,33 +444,8 @@ async function addWalletBalance(parent, args, context, info) {
         }
     });
 
-    console.log(`Wallet balance added for ${args.datetime}: ${args.address}  -  ${args.balance}BOGE`);
+    console.log(`Wallet balance added for ${args.datetime}: ${args.address}  -  ${args.balance.toFixed(2)} BOGE`);
     return bogeWallet;
-}
-
-async function getBogeLiquidity(parent, args, context, info) {
-    var bogeLiquidity = await context.prisma.bogeLiquidity.findFirst({
-        where: {
-            datetime: { lte: new Date(args.datetime) }
-        }
-    });
-
-    console.log(`Got BOGE liquidity: ${bogeLiquidity.bnbBalance}BNB  :  ${bogeLiquidity.bogeBalance}BOGE`);
-    return bogeLiquidity;
-}
-
-async function addBogeLiquidity(parent, args, context, info) {
-    var bogeLiquidity = await context.prisma.bogeLiquidity.create({
-        data: {
-            datetime: args.datetime,
-            bnbBalance: args.bnbBalance,
-            bogeBalance: args.bogeBalance,
-            address: args.address
-        }
-    });
-
-    console.log(`Boge liquidity record added for ${(new Date(args.datetime)).toJSON()}: ${args.bnbBalance}BNB - ${args.bogeBalance}BOGE`);
-    return bogeLiquidity;
 }
   
 module.exports = {
@@ -489,6 +464,6 @@ module.exports = {
     addTransfer,
     getWalletBalance,
     addWalletBalance,
-    getBogeLiquidity,
-    addBogeLiquidity
+    //getg,
+    // addBogeLiquidity
 }

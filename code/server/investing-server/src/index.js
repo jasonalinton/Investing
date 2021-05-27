@@ -5,15 +5,20 @@ const fs = require('fs');
 const path = require('path');
 
 const Query = require('./resolvers/Query')
-const Mutation = require('./resolvers/Mutation')
+const MutationFile = require('./resolvers/Mutation')
+const BogeLiquidityMutation = require('./resolvers/mutations/bogeLiquidityMutation')
 
-const prisma = new PrismaClient()
-
-const resolvers = {
-    Query,
-    Mutation
+const Mutation = {
+  ...MutationFile,
+  ...BogeLiquidityMutation
 }
 
+const resolvers = {
+  Query,
+  Mutation
+}
+
+const prisma = new PrismaClient()
 const server = new ApolloServer({
   typeDefs: fs.readFileSync(
     path.join(__dirname, '/schema.graphql'),

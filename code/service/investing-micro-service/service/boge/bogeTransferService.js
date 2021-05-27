@@ -18,7 +18,7 @@ class BogeTransferService {
         this.socket = io(socketURL);
     }
 
-    start(socket) {
+    async start(socket) {
         //this.socket2 = socket;
         this.intervalID = setInterval(this.syncTransferTable, this.serviceInterval, this);
         return this.syncTransferTable(this);
@@ -34,7 +34,7 @@ class BogeTransferService {
         this.intervalID = null;
     }
 
-    syncTransferTable(self) {
+    async syncTransferTable(self) {
         return new Promise((resolveRun) => {
             if (self.processing == false) {
                 self.processing = true;
@@ -47,19 +47,25 @@ class BogeTransferService {
                         self.fetchTranfers(self, self.lastSavedTime, resolve);
                     }))
                     .then(() => { 
-                        return self.getBNBHistory(self); 
-                    })
+                        if (self.newTransfers.length > 0)
+                            return self.getBNBHistory(self); 
+                        else
+                            resolveRun();
+                    }, error => { console.log(error.response.data.errors) })
                     .then((res) => new Promise((resolve) => {
+                        if (!res) {
+                            self.processing = false;
+                            return;
+                        }
+
                         self.bnbHistory = res.data.data.getAssetValues;
                         self.fetchBNBTransfers(self, resolve);
-                    }))
+                    }, error => { console.log(error.response.data.errors) }))
                     .then(() => new Promise((resolve) => {
-                        self.setBNBValues(self);   
-                        
+                        self.setBNBValues(self);
                         self.saveTransfers(self, resolve);
-    
                         console.log(`Saving transfers`); 
-                    }))
+                    }, error => { console.log(error.response.data.errors) }))
                     .then(() => {
                         self.processing = false;
                         resolveRun();
@@ -122,7 +128,7 @@ class BogeTransferService {
                 self.createTransfers(self, lastSavedTransferTime, res.data.data.ethereum.transfers);
                     
                 if (self.newTransfers.length == 0) {
-                    self.processing = false;
+                    resolve();
                     return;
                 }
             

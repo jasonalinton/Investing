@@ -1,9 +1,9 @@
 <template>
   <div class="portfolio d-flex flex-row align-items-center">
     <!-- Numbers -->
-    <div class="numbers d-flex flex-column">
+    <div class="numbers d-flex flex-column ">
       <div class="value">{{ balance.toFixed(2) }}</div>
-      <div v-if="timeframe" class="d-flex flex-row">
+      <div v-if="timeframe" class="d-flex flex-row justify-content-evenly">
         <span class="change">
           {{ timeframe.change.balance.toFixed(2) }} / {{ timeframe.change.percent.toFixed(1) }}%
         </span>
@@ -11,8 +11,6 @@
         <div class="timeframe" @click="toggleTimeframe" :style="{'text-align': 'center'}">{{ timeframe.text }}</div>
       </div>
     </div>
-    <!-- Logo -->
-    <img class="logo" src="/boge-transparent.png" width="55" height="60" />
   </div>
 </template>
 
@@ -31,7 +29,7 @@ export default {
       timeframes: [
         { text: "24hrs", getDate: dayAgo, balance: null, change: { balance: null, percent: null } },
         { text: "1w", getDate: weekAgo, balance: null, change: { balance: null, percent: null } },
-        { text: "1m", getDate: monthAgo, balance: null, change: { balance: null, percent: null } },
+        { text: "30d", getDate: monthAgo, balance: null, change: { balance: null, percent: null } },
         { text: "1hr", getDate: hourAgo, balance: null, change: { balance: null, percent: null } },
       ],
       timeframe: null,
@@ -170,10 +168,5 @@ function monthAgo() {
   background-color: #565656;
   padding: 4px 5px;
   border-radius: 4px;
-}
-
-.portfolio .logo {
-  margin-left: 24px;
-  margin-top: 16px;
 }
 </style>

@@ -28,7 +28,7 @@ export default {
 function initChart(self) {
   var startDatetime = date.addDays(new Date(), -2);
 
-  getBogeKlines(startDatetime, null)
+  getBogeKlines(null, null)
       .then(res => {
           self.klines = res.data.data.getAssetValueRange;
           createLightweightChart(self);

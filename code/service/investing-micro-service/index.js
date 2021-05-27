@@ -11,7 +11,7 @@ import BNBService from './service/bnbService.js';
 import BogeTransferService from './service/boge/bogeTransferService';
 import BogeHistoryService from './service/boge/bogeHistoryService';
 import BogeWalletService from './service/boge/bogeWalletService';
-import BogeContractService from './service/boge/bogeContractService';
+import BogeLiquidityService from './service/boge/bogeLiquidityService';
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
@@ -41,12 +41,13 @@ bnbService.start()
     })
     .then(() => {
         const bogeHistoryService = new BogeHistoryService(900000); // Every 15 minutes
-        bogeHistoryService.start();
-    });
-
-// Running these services at the same time could cause too many requests being sent to BSCScan at one time
-const bogeContractService = new BogeContractService(60000); // Every minute
-bogeContractService.start()
+        return bogeHistoryService.start();
+    })
+    .then(() => {
+        // Running these services at the same time could cause too many requests being sent to BSCScan at one time
+        const bogeLiquidityService = new BogeLiquidityService(60000); // Every minute
+        return bogeLiquidityService.start()
+    })
     .then(() => {
         const bogeWalletService = new BogeWalletService(900000); // Every 15 minutes
         bogeWalletService.start();

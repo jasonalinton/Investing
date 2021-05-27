@@ -12,11 +12,9 @@ class BNBService {
         this.bnbHistoryInterval = (bnbHistoryInterval) ? bnbHistoryInterval : this.bnbHistoryInterval;
     }
 
-    start() {
-        return new Promise(resolve => {
-            this.getAndSaveNewBNBValues(this).then(resolve);
-            this.intervalID = setInterval(this.getAndSaveNewBNBValues, this.serviceInterval, this);
-        });
+    async start() {
+        this.intervalID = setInterval(this.getAndSaveNewBNBValues, this.serviceInterval, this);
+        return this.getAndSaveNewBNBValues(this);
     }
 
     restart() {
@@ -29,7 +27,7 @@ class BNBService {
         this.intervalID = null;
     }
 
-    getAndSaveNewBNBValues(self) {
+    async getAndSaveNewBNBValues(self) {
         return new Promise((resolveRun) => {
             self.getLastSavedTime()
             .then((res) => new Promise((resolve) => {
@@ -39,6 +37,9 @@ class BNBService {
                 if (!self.processing) {
                     self.processing = true;
                     self.getBNBHistory(self, lastSavedTime, resolve);
+                } else {
+                    resolveRun();
+                    return;
                 }
             }))
             .then(() => new Promise((resolve) => {
@@ -101,7 +102,10 @@ class BNBService {
     }
 
     saveBNBHistory(self, resolve) {
-        if (self.klines.length == 0) return;
+        if (self.klines.length == 0) {
+            resolve();
+            return;
+        }
 
         var kline = self.klines.shift();
         self.saveBNBKline(self, kline)

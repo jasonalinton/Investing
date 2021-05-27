@@ -16,11 +16,9 @@ class BogeHistoryService {
         this.serviceInterval = serviceInterval;
     }
 
-    start() {
-        return new Promise(resolve => {
-            this.run(this).then(resolve)
-            this.intervalID = setInterval(this.run, this.serviceInterval, this);
-        });
+    async start() {
+        this.intervalID = setInterval(this.run, this.serviceInterval, this);
+        return this.run(this);
     }
 
     restart() {
@@ -33,7 +31,7 @@ class BogeHistoryService {
         this.intervalID = null;
     }
 
-    run(self) {
+    async run(self) {
         return new Promise((resolveRun) => {
             if (self.processing == false) {
                 self.processing = true;

@@ -180,6 +180,46 @@ async function getTransfers() {
     return axios.post('http://localhost:4000/graphql', data);
 }
 
+async function getDexTransfers() {
+    var data = {
+        query: `
+        {
+            ethereum(network: bsc) {
+                dexTrades(
+                options: {limit: 100, desc: "timeInterval.minute"}
+                date: {since: "2020-11-01"}
+                exchangeName: {is: "Pancake"}
+                baseCurrency: {is: "0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"}
+                quoteCurrency: {is: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"}
+                ) {
+                timeInterval {
+                    minute(count: 60)
+                }
+                baseCurrency {
+                    symbol
+                    address
+                }
+                baseAmount
+                quoteCurrency {
+                    symbol
+                    address
+                }
+                quoteAmount
+                trades: count
+                quotePrice
+                maximum_price: quotePrice(calculate: maximum)
+                minimum_price: quotePrice(calculate: minimum)
+                median_price: quotePrice(calculate: median)
+                open_price: minimum(of: block, get: quote_price)
+                close_price: maximum(of: block, get: quote_price)
+                }
+            }
+        }
+        `
+    }
+    return axios.post('http://localhost:4000/graphql', data);
+}
+
 function setTransfers(self, transfers) {
     let transfers_temp = []
     // Remove bad transfers

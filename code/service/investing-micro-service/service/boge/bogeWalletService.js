@@ -5,6 +5,7 @@ class BogeWalletService {
         { name: "My Main Wallet", address: "0xfd345014ed667bb07eb26345e66addc9e8164b3b" },
         { name: "My Trust Wallet", address: "0x003c2f2dbcd1a57c081155c09aa72ba349da3752" },
         { name: "Christy", address: "0xa1CFA1eC61BcA7707ad4A813376d104Cb75Fe679" },
+        { name: "Dad", address: "0xdac5ee9e4e1d0a1a923241400dd84cf1df77d732" },
         { name: "Sayeed", address: "0xe3672Ddd7Cf52Ba8D5F4413E7BB5bbb5e7dc0EFD" },
         { name: "Evan F", address: "0x4ffFD4BE967968BE09F8Fdb9CD6F99A837F6E6E8" },
         { name: "Mark", address: "0x7C5f319dDB3D13De0586c765a42C8304259A7B1c" },
