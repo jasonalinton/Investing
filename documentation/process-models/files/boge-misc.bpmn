@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0dy94ij" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+  <bpmn:process id="Process_1nlnnni" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1g1xzai</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_0qrxpx2" name="Get&#10;Boge Transfers">
+      <bpmn:incoming>Flow_1g1xzai</bpmn:incoming>
+      <bpmn:outgoing>Flow_1sm1emv</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1g1xzai" sourceRef="StartEvent_1" targetRef="Activity_0qrxpx2" />
+    <bpmn:dataObjectReference id="DataObjectReference_12nkd6v" name="Boge address" dataObjectRef="DataObject_0srwvev" />
+    <bpmn:dataObject id="DataObject_0srwvev" />
+    <bpmn:dataObjectReference id="DataObjectReference_0bqb2dt" name="txFrom Address&#10;(optional)" dataObjectRef="DataObject_0nlzcdd" />
+    <bpmn:dataObject id="DataObject_0nlzcdd" />
+    <bpmn:sequenceFlow id="Flow_1sm1emv" sourceRef="Activity_0qrxpx2" targetRef="Activity_19qhrga" />
+    <bpmn:subProcess id="Activity_1yn1up6" name="Figure out how much BNB was transferred">
+      <bpmn:incoming>Flow_1stn1k3</bpmn:incoming>
+      <bpmn:startEvent id="Event_0s4qc5r">
+        <bpmn:outgoing>Flow_009jjc9</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Activity_1otoosq" name="Get all internal transactions for txHashs">
+        <bpmn:incoming>Flow_009jjc9</bpmn:incoming>
+      </bpmn:task>
+      <bpmn:sequenceFlow id="Flow_009jjc9" sourceRef="Event_0s4qc5r" targetRef="Activity_1otoosq" />
+    </bpmn:subProcess>
+    <bpmn:task id="Activity_19qhrga" name="Get txHashs for transfers">
+      <bpmn:incoming>Flow_1sm1emv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1stn1k3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1stn1k3" sourceRef="Activity_19qhrga" targetRef="Activity_1yn1up6" />
+    <bpmn:dataObjectReference id="DataObjectReference_02muq2s" name="txHashs" dataObjectRef="DataObject_0xo0mkb" />
+    <bpmn:dataObject id="DataObject_0xo0mkb" />
+    <bpmn:textAnnotation id="TextAnnotation_0cgjk6h">
+      <bpmn:text>This gives amount of BOGE transferred but not amount of BNB or the value</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_17ploak" sourceRef="Activity_0qrxpx2" targetRef="TextAnnotation_0cgjk6h" />
+    <bpmn:textAnnotation id="TextAnnotation_0rec1pz" />
+    <bpmn:association id="Association_0ecgey6" sourceRef="Activity_1yn1up6" targetRef="TextAnnotation_0rec1pz" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1nlnnni">
+      <bpmndi:BPMNShape id="TextAnnotation_0cgjk6h_di" bpmnElement="TextAnnotation_0cgjk6h">
+        <dc:Bounds x="240" y="360" width="100" height="110" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0rec1pz_di" bpmnElement="TextAnnotation_0rec1pz">
+        <dc:Bounds x="750" y="410" width="100" height="30" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1g1xzai_di" bpmnElement="Flow_1g1xzai">
+        <di:waypoint x="215" y="257" />
+        <di:waypoint x="270" y="257" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1sm1emv_di" bpmnElement="Flow_1sm1emv">
+        <di:waypoint x="370" y="257" />
+        <di:waypoint x="470" y="257" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1stn1k3_di" bpmnElement="Flow_1stn1k3">
+        <di:waypoint x="570" y="257" />
+        <di:waypoint x="710" y="257" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="239" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qrxpx2_di" bpmnElement="Activity_0qrxpx2">
+        <dc:Bounds x="270" y="217" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_12nkd6v_di" bpmnElement="DataObjectReference_12nkd6v">
+        <dc:Bounds x="252" y="85" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="236" y="142" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_0bqb2dt_di" bpmnElement="DataObjectReference_0bqb2dt">
+        <dc:Bounds x="362" y="85" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="341" y="142" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_19qhrga_di" bpmnElement="Activity_19qhrga">
+        <dc:Bounds x="470" y="217" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_02muq2s_di" bpmnElement="DataObjectReference_02muq2s">
+        <dc:Bounds x="502" y="85" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="142" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_17ploak_di" bpmnElement="Association_17ploak">
+        <di:waypoint x="310" y="297" />
+        <di:waypoint x="294" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1tmhicj_di" bpmnElement="Activity_1yn1up6" isExpanded="true">
+        <dc:Bounds x="710" y="152" width="360" height="210" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_009jjc9_di" bpmnElement="Flow_009jjc9">
+        <di:waypoint x="768" y="252" />
+        <di:waypoint x="820" y="252" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0s4qc5r_di" bpmnElement="Event_0s4qc5r">
+        <dc:Bounds x="732" y="234" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1otoosq_di" bpmnElement="Activity_1otoosq">
+        <dc:Bounds x="820" y="212" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0ecgey6_di" bpmnElement="Association_0ecgey6">
+        <di:waypoint x="834" y="362" />
+        <di:waypoint x="808" y="410" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
