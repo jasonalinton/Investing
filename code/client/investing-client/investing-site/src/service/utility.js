@@ -14,7 +14,7 @@
 // }
 
 
-function test() {
+export function test() {
     console.log("Tesing Export");
 }
 
@@ -22,8 +22,11 @@ function test() {
 //     test
 // }
 
-function currency(number) {
+export function currency(number) {
     return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' }).format(number);
 }
 
-export default test;
+export function formatDate(date) {
+    new Intl.DateTimeFormat([], { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+}
+

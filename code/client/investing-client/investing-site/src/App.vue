@@ -12,8 +12,8 @@
       <div class="row g-4">
         <div class="col-auto">
           <div class="d-flex flex-row justify-content-start">
-            <ContractInfo :address='"0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"'></ContractInfo>
             <BalanceInfo :address='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'></BalanceInfo>
+            <ContractInfo :address='"0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"'></ContractInfo>
           </div>
         </div>
         <div class="col" :style="{'overflow': 'scroll'}">
@@ -93,8 +93,12 @@ export default {
           kLines: [],
           address: "",
           change: { timeframe: "24hrs", balance: null, amount: -432, percent: 9, series: [
-            { time: '2018-11-08', value: 208.49 },
-            { time: '2018-11-09', value: 204.47 },
+            { time: '2018-12-01', value: 32.51 },
+            { time: '2018-12-02', value: 31.11 },
+            { time: '2018-12-03', value: 27.02 },
+            { time: '2018-12-04', value: 27.32 },
+            { time: '2018-12-05', value: 25.17 },
+            { time: '2018-12-06', value: 28.89 },
           ] },
           changes: [
               { timeframe: "24hrs", balance: 5574, amount: 5859.997, percent: 18 },

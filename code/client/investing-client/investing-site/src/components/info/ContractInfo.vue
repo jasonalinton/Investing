@@ -1,6 +1,9 @@
 <template>
     <div class="contract info d-flex flex-row align-items-center">
 
+    <!-- Logo -->
+    <img class="logo" src="/boge-transparent.png" width="55" height="60" />
+
     <!-- Numbers -->
     <div class="numbers d-flex flex-column">
         <div class="price">${{ price.toFixed(2) }}</div>
@@ -12,9 +15,6 @@
         <div class="timeframe" @click="toggleTimeframe" :style="{'text-align': 'center'}">{{ timeframe.text }}</div>
         </div>
     </div>
-
-    <!-- Logo -->
-    <img class="logo" src="/boge-transparent.png" width="55" height="60" />
     </div>
 </template>
 
@@ -127,7 +127,7 @@ function monthAgo() {
 }
 
 .contract.info .logo {
-  margin-left: 24px;
+  margin-right: 12px;
   /* margin-top: 16px; */
 }
 </style>
