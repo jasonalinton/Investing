@@ -2,7 +2,7 @@
 
 async function addAssetValue(parent, args, context, info) {
     let assetValue = args.assetValue;
-    var hi = await context.prisma.assetValue.create({
+    var av = await context.prisma.assetValue.create({
         data: {
             symbol: assetValue.symbol,
             interval: assetValue.interval,
@@ -57,8 +57,8 @@ async function addAssetValue(parent, args, context, info) {
             }
         },
     });
-    console.log(`Added ${hi.baseAsset.symbol} AssetValue: ${hi.openTime.toJSON()} - $${hi.open}`);
-    return hi;
+    console.log(`Added ${av.baseAsset.symbol} AssetValue-${av.interval}: ${formatDate(av.openTime)} - $${av.open}`);
+    return av;
 }
 
 async function addAssetValues(parent, args, context, info) {
@@ -89,7 +89,7 @@ async function addAssetValues(parent, args, context, info) {
     
     let assetValues_Out = [];
     assetValues.map(assetValue => {
-        var hi = context.prisma.assetValue.create({
+        var av = context.prisma.assetValue.create({
             data: assetValue,
             select: {
                 id: true,
@@ -123,20 +123,9 @@ async function addAssetValues(parent, args, context, info) {
                     }
                 }
             },
-            // include: { 
-            //     quoteAsset: true,
-            //     baseAsset: true 
-            // }
         })
-        console.log(hi);
-        assetValues_Out.push(hi);
-        // .then(function(resp) {
-        //     console.log(resp);
-        //     console.log("Then");
-        // },function(err) {
-        //     console.log("Error");
-        //     console.log(err);
-        // })
+        console.log(av);
+        assetValues_Out.push(av);
     });
     console.log("Return");
     Promise.allSettled(assetValues_Out).then(() => {
@@ -201,7 +190,12 @@ async function getAssetValueRange(parent, args, context, info) {
 async function getLastSavedTime(parent, args, context, info) {
     let assetValue = await context.prisma.assetValue.findFirst({
         select: { closeTime: true },
-        where: { symbol: args.symbol },
+        where: {
+            AND: [
+                { symbol: args.symbol },
+                { interval: args.interval }
+            ]
+        },
         orderBy: { closeTime: "desc" }
     })
 
@@ -210,7 +204,7 @@ async function getLastSavedTime(parent, args, context, info) {
     if (assetValue) {
         lastTime = new Date(assetValue.closeTime);
     }
-    console.log(`Last save ${args.symbol} date: ${lastTime.toJSON()}`);
+    console.log(`${args.symbol} history last saved on ${formatDate(lastTime)} for ${args.interval} interval`);
     return lastTime.toJSON();
 }
 
@@ -446,6 +440,10 @@ async function addWalletBalance(parent, args, context, info) {
 
     console.log(`Wallet balance added for ${args.datetime}: ${args.address}  -  ${args.balance.toFixed(2)} BOGE`);
     return bogeWallet;
+}
+
+function formatDate(date) {
+    return new Intl.DateTimeFormat([], { dateStyle: 'short', timeStyle: 'short' }).format(date)
 }
   
 module.exports = {

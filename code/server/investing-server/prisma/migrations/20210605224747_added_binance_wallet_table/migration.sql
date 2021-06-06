@@ -1,0 +1,9 @@
+-- CreateTable
+CREATE TABLE "BinanceWallet" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "datetime" DATETIME,
+    "symbol" TEXT,
+    "balance" REAL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

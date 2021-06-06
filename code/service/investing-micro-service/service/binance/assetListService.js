@@ -1,10 +1,14 @@
 import axios from "axios";
 import HmacSHA256 from 'crypto-js/hmac-sha256';
 import Hex from 'crypto-js/enc-hex';
+import { io } from "socket.io-client";
 
-class BinanceWalletService {
-    constructor(serviceInterval) {
+require('dotenv').config();
+
+class AssetListService {
+    constructor(serviceInterval, socketURL) {
         this.serviceInterval = serviceInterval;
+        this.socket = io(socketURL);
     }
 
     start() {
@@ -25,21 +29,14 @@ class BinanceWalletService {
     run(self) {
         self.getBinanceBalances()
             .then(res => {
-                let datetime = new Date();
+                res.data.balances = [ res.data.balances[0] ];
                 res.data.balances.forEach(balance => {
-                    if (balance.free != 0) {
-                        self.saveWalletBalance(balance.asset, datetime, balance.free)
-                        .then(res => {
-                            console.log(`Wallet balance added for ${balance.asset}: ${Number(balance.free).toFixed(2)}`);
-                        }, logErrors);
-                    }
+                    let asset = { symbol: balance.asset, balance: balance.free };
+                    self.getAssetInfo(self, asset);
                 });
             }, err => {
                 console.log(err);
             })
-            .then(res => {
-                console.log(res);
-            }, logErrors)
     }
 
     async getBinanceBalances() {
@@ -67,19 +64,39 @@ class BinanceWalletService {
         return axios(options);
     }
 
-    async saveWalletBalance(symbol, datetime, balance) {
+    async getAssetInfo(self, asset) {
+        let name_Promise = self.getAssetName(asset.symbol)
+            .then(res => { asset.name = res.data.data.getAssetName; }, logErrors);
+
+        let value_Promise = self.getAssetValues(asset.symbol)
+            .then(res => { asset.value = res.data.data.getCurrentAssetValue; }, logErrors);
+
+        let promises = [ name_Promise, value_Promise];
+
+        return Promise.allSettled(promises)
+    }
+
+    async getAssetName(symbol) {
         var data = {
             query: `
             mutation {
-                saveBinanceWalletBalance(symbol: "${symbol}", datetime: "${datetime.toJSON()}", balance: ${balance}) {
-                    datetime
-                    symbol
-                    balance
-                }
+                getAssetName(symbol: "${symbol}")
             }`
         }
         return axios.post('http://localhost:4000/graphql', data);
     }
+
+    async getAssetValues(symbol) {
+        var data = {
+            query: `
+            mutation {
+                getAssetTimeframeValues(symbol: "${symbol}")
+            }`
+        }
+        return axios.post('http://localhost:4000/graphql', data);
+    }
+
+
 }
 
 function logErrors(err) {
@@ -88,4 +105,4 @@ function logErrors(err) {
     })
 }
 
-export default BinanceWalletService;
+export default AssetListService;

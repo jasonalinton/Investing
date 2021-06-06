@@ -9,7 +9,7 @@ type Mutation {
   addAssetValue(assetValue: AssetValueInput): AssetValue!
   addAssetValues(assetValues: [AssetValueInput]): [AssetValue!]!
   addTransfer(transfer: BogeTransferInput): BogeTransfer!
-  getLastSavedTime(symbol: String!): String!
+  getLastSavedTime(symbol: String!, interval: String!): String!
   getLastTwoKlines(symbol: String!, interval: String!): [AssetValue!]!
   deleteLastTwoKlines(symbol: String!, interval: String!): Boolean!
   getAndDeleteLastKlines(symbol: String!, interval: String!): AssetValue
@@ -23,6 +23,12 @@ type Mutation {
   addWalletBalance(datetime: String!, balance: Float!, name: String!, address: String!): BogeWallet
   getBogeLiquidity(datetime: String!): BogeLiquidity!
   addBogeLiquidity(datetime: String!, bnbBalance: Float!, bogeBalance: Float!, address: String!): BogeLiquidity
+
+  # Asset Info Service
+  getAssetName(symbol: String): String!
+  getAssetTimeframeValues(symbol: String): [AssetTimeframeValue!]!
+  saveBinanceWalletBalance(symbol: String!, datetime: String!, balance: Float!): BinanceWallet
+
 }
 
 type Asset {
@@ -37,6 +43,11 @@ input AssetInput {
   text:   String
   symbol: String!
   name:   String
+}
+
+type AssetTimeframeValue {
+  timeframe: String!
+  value:     Float!
 }
 
 type AssetValue {
@@ -141,4 +152,11 @@ input BogeLiquidityInput {
   bnbBalance:  Float!
   price:       Float!
   address:     String!
+}
+
+type BinanceWallet {
+  id:           ID!
+  datetime:     String!
+  symbol:       String!
+  balance:      Float!
 }

@@ -79,3 +79,18 @@ model BogeLiquidity {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @default(now()) @updatedAt
 }
+
+// model User {
+//   id                 Int
+//   idAsset_NativeFiat Int
+//   asset_NativeFiat Asset[]
+// }
+
+model BinanceWallet {
+  id              Int       @id @default(autoincrement())
+  datetime        DateTime?
+  symbol          String?
+  balance         Float?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+}

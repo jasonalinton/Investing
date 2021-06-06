@@ -56,7 +56,7 @@ class BNBService {
         var data = {
             query: `
             mutation {
-                getLastSavedTime(symbol: "BNB")
+                getLastSavedTime(symbol: "BNB", interval: "1m")
             }`
         }
         return axios.post('http://localhost:4000/graphql', data);

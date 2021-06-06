@@ -7,10 +7,12 @@ const path = require('path');
 const Query = require('./resolvers/Query')
 const MutationFile = require('./resolvers/Mutation')
 const BogeLiquidityMutation = require('./resolvers/mutations/bogeLiquidityMutation')
+const AssetInfoService = require('./resolvers/mutations/assetInfoService')
 
 const Mutation = {
   ...MutationFile,
-  ...BogeLiquidityMutation
+  ...BogeLiquidityMutation,
+  ...AssetInfoService
 }
 
 const resolvers = {

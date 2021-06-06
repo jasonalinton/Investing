@@ -12,6 +12,9 @@ import BogeTransferService from './service/boge/bogeTransferService';
 import BogeHistoryService from './service/boge/bogeHistoryService';
 import BogeWalletService from './service/boge/bogeWalletService';
 import BogeLiquidityService from './service/boge/bogeLiquidityService';
+import AssetValueService from './service/binance/assetValueService';
+import AssetListService from './service/binance/assetListService';
+import BinanceWalletService from './service/binance/binanceWalletService';
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
@@ -31,6 +34,27 @@ io.on('connection', (socket) => {
     socket.on('emit-transfer-added', transfer => {
         io.emit('transfer-added', transfer);
     });
+});
+
+const binanceWalletService = new BinanceWalletService(3600000);
+binanceWalletService.start();
+
+const assetListService = new AssetListService(60000, "http://localhost:3050");
+assetListService.start();
+
+
+const assets = [
+    'ADA',
+    'BTC',
+    'ETH',
+    'DOGE'
+];
+const intervals = [
+    '1m'
+]
+assets.forEach(asset => {
+    const assetValueService = new AssetValueService(asset, intervals, 60000);
+    assetValueService.start();
 });
 
 const bnbService = new BNBService(60000);
