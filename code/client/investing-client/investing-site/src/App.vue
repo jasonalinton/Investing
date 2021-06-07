@@ -17,9 +17,7 @@
           </div>
         </div>
         <div class="col" :style="{'overflow': 'scroll'}">
-          <div class="d-flex flex-row justify-content-start align-items-center" :style="{'height': '100%'}">
-            <AssetInfo v-for="(assetInfo, index) in assetInfos" :key="index" :assetInfo="assetInfo"></AssetInfo>
-          </div>
+          <AssetList></AssetList>
         </div>
       </div>
       <!-- Chart -->
@@ -39,7 +37,7 @@
 <script>
 import ContractInfo from "./components/info/ContractInfo.vue";
 import BalanceInfo from "./components/info/BalanceInfo.vue";
-import AssetInfo from "./components/info/AssetInfo.vue";
+import AssetList from "./components/info/AssetList.vue";
 import ContractChart from "./components/chart/ContractChart.vue";
 import TransferTable from "./components/TransferTable.vue";
 
@@ -48,7 +46,7 @@ export default {
   components: {
     ContractInfo,
     BalanceInfo,
-    AssetInfo,
+    AssetList,
     ContractChart,
     TransferTable,
   },
