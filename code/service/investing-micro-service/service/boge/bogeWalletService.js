@@ -92,7 +92,7 @@ class BogeWalletService {
               }
             `
         }
-        //console.log(data.query);
+        
         return axios.post('http://localhost:4000/graphql', data);
     }
 }

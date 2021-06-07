@@ -9,6 +9,16 @@ class AssetListService {
     constructor(serviceInterval, socketURL) {
         this.serviceInterval = serviceInterval;
         this.socket = io(socketURL);
+        this.assets = [];
+        this.followedAssets = [
+            'ADA',
+            'BTC',
+            'ETH',
+            'DOGE',
+            'MATIC',
+            'ONE',
+            // 'XRP'
+        ];
     }
 
     start() {
@@ -27,16 +37,36 @@ class AssetListService {
     }
 
     run(self) {
-        self.getBinanceBalances()
+        if (!self.processing) {
+            self.getBinanceBalances()
             .then(res => {
-                res.data.balances = [ res.data.balances[0] ];
+                let promises = [];
+
                 res.data.balances.forEach(balance => {
-                    let asset = { symbol: balance.asset, balance: balance.free };
-                    self.getAssetInfo(self, asset);
+                    if (balance.free > 0 && self.followedAssets.includes(balance.asset)) {
+                        let asset = { symbol: balance.asset, balance: Number(balance.free), timeframes: [] };
+                        self.assets.push(asset);
+
+                        promises.push(self.getAssetInfo(self, asset));
+                    }
                 });
-            }, err => {
-                console.log(err);
-            })
+
+                return Promise.all(promises);
+            }, logErrors)
+            .then(
+                () => {
+                    self.calculateChanges(self);
+
+                    self.socket.emit('emit-asset-list', self.assets);
+                    self.refresh(self)
+                },
+                () => self.refresh(self))
+            .catch(error => {
+                logErrors(error);
+                self.refresh(self);
+            });
+        }
+        
     }
 
     async getBinanceBalances() {
@@ -68,10 +98,29 @@ class AssetListService {
         let name_Promise = self.getAssetName(asset.symbol)
             .then(res => { asset.name = res.data.data.getAssetName; }, logErrors);
 
-        let value_Promise = self.getAssetValues(asset.symbol)
-            .then(res => { asset.value = res.data.data.getCurrentAssetValue; }, logErrors);
+        let price_Promise = self.getAssetPrices(asset.symbol)
+            .then(async res => { 
+                // TODO: Check that all timeframes return a value > -1. Handle if not
+                asset.prices = res.data.data.getAssetPrices; 
 
-        let promises = [ name_Promise, value_Promise];
+                asset.price = asset.prices.find(price => price.timeframe == '1m').price;
+
+                // if (asset.price == -1) {
+                //     let response = await self.getAssetPrice(asset.symbol);
+                //     asset.price = Number(response.data.price);
+                // }
+
+
+                asset.value = asset.price * asset.balance;
+            }, logErrors);
+
+        let balance_Promise = self.getAssetBalances(asset.symbol)
+            .then(res => {
+                // TODO: Check that all timeframes return a balance > -1. Handle if not
+                asset.balances = res.data.data.getAssetBalances;
+            }, logErrors);
+
+        let promises = [ name_Promise, price_Promise, balance_Promise];
 
         return Promise.allSettled(promises)
     }
@@ -86,22 +135,75 @@ class AssetListService {
         return axios.post('http://localhost:4000/graphql', data);
     }
 
-    async getAssetValues(symbol) {
+    async getAssetPrices(symbol) {
         var data = {
             query: `
             mutation {
-                getAssetTimeframeValues(symbol: "${symbol}")
+                getAssetPrices(symbol: "${symbol}") {
+                    timeframe
+                    price
+                }
             }`
         }
         return axios.post('http://localhost:4000/graphql', data);
     }
 
+    async getAssetPrice(symbol) {
+        return axios.get(`https://api.binance.us/api/v3/ticker/price?symbol=${symbol}USD`);
+    }
 
+    async getAssetBalances(symbol) {
+        var data = {
+            query: `
+            mutation {
+                getAssetBalances(symbol: "${symbol}") {
+                    timeframe
+                    balance
+                }
+            }`
+        }
+        return axios.post('http://localhost:4000/graphql', data);
+    }
+
+    calculateChanges(self) {
+        self.assets.forEach(asset => {
+            let timeframes = [ '1m', '1h', '1d', '1w', '1M' ]
+
+            timeframes.forEach(timeframe => {
+                let price = asset.prices.find(price => price.timeframe == timeframe).price;
+                let balance = asset.balances.find(balance => balance.timeframe == timeframe).balance;
+                
+                let tf = {
+                    timeframe: timeframe,
+                    balance: (balance > -1) ? balance : null,
+                    price: (price > -1) ? price : null,
+                    value: (balance > -1 && price > -1) ? (price * balance) : null,
+                    change: {
+                        balance: (balance > -1) ? asset.balance - balance : null,
+                        value: (balance > -1 && price > -1) ? asset.value - (price * balance) : null
+                    }
+                }
+                let balancePercent = (tf.change.balance != null) ? tf.change.balance / tf.balance * 100: null;
+                let valuePercent = (tf.change.value != null) ? tf.change.value / tf.value * 100 : null;
+
+                tf.change.balancePercent = balancePercent;
+                tf.change.valuePercent = valuePercent;
+
+                asset.timeframes.push(tf);
+
+            });
+        });
+    }
+    
+    refresh(self) {
+        self.assets = []
+        self.process = false;
+    }
 }
 
 function logErrors(err) {
-    err.data.data.errors.forEach(error => {
-        console.log(error);
+    err.response.data.errors.forEach(error => {
+        console.error(error.message);
     })
 }
 

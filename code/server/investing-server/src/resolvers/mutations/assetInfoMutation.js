@@ -11,7 +11,7 @@ async function getAssetName(parent, args, context, info) {
     return asset.name;
 }
 
-async function getAssetValue_Now(parent, args, context, info) {
+async function getAssetPrice_Now(parent, args, context, info) {
     let assetValue = await context.prisma.assetValue.findFirst({
         where: { symbol: args.symbol },
         orderBy: { openTime: 'desc' }
@@ -24,13 +24,13 @@ async function getAssetValue_Now(parent, args, context, info) {
         console.log(`${args.symbol} was worth $${currency(assetValue.open)} at ${formatDate(assetValue.openTime)}`);
         return assetValue.open;
     } else {
-        console.log("Don't have ${args.symbol} asset value within 5 minutes");
+        console.log(`Don't have ${args.symbol} asset value within 5 minutes`);
         //throw new Error("Don't have asset value within 5 minutes");
         return -1
     }
 }
 
-async function getAssetValue_Hour(parent, args, context, info) {
+async function getAssetPrice_Hour(parent, args, context, info) {
     let now = new Date((new Date()).setSeconds(0));
     let hourAgo = date.addHours(now, -1);
     
@@ -53,7 +53,7 @@ async function getAssetValue_Hour(parent, args, context, info) {
     }
 }
 
-async function getAssetValue_Day(parent, args, context, info) {
+async function getAssetPrice_Day(parent, args, context, info) {
     let now = new Date((new Date()).setSeconds(0));
     let dayAgo = date.addDays(now, -1);
     
@@ -76,7 +76,7 @@ async function getAssetValue_Day(parent, args, context, info) {
     }
 }
 
-async function getAssetValue_Week(parent, args, context, info) {
+async function getAssetPrice_Week(parent, args, context, info) {
     let now = new Date((new Date()).setSeconds(0));
     let weekAgo = date.addDays(now, -7);
     
@@ -99,7 +99,7 @@ async function getAssetValue_Week(parent, args, context, info) {
     }
 }
 
-async function getAssetValue_Month(parent, args, context, info) {
+async function getAssetPrice_Month(parent, args, context, info) {
     let now = new Date((new Date()).setSeconds(0));
     let monthAgo = date.addMonths(now, -1);
     
@@ -122,29 +122,78 @@ async function getAssetValue_Month(parent, args, context, info) {
     }
 }
 
-async function getAssetTimeframeValues(parent, args, context, info) {
+async function getAssetPrices(parent, args, context, info) {
     let promises = [];
-    promises.push(getAssetValue_Now(parent, args, context, info));
-    promises.push(getAssetValue_Hour(parent, args, context, info));
-    promises.push(getAssetValue_Day(parent, args, context, info));
-    promises.push(getAssetValue_Week(parent, args, context, info));
-    promises.push(getAssetValue_Month(parent, args, context, info));
+    promises.push(getAssetPrice_Now(parent, args, context, info));
+    promises.push(getAssetPrice_Hour(parent, args, context, info));
+    promises.push(getAssetPrice_Day(parent, args, context, info));
+    promises.push(getAssetPrice_Week(parent, args, context, info));
+    promises.push(getAssetPrice_Month(parent, args, context, info));
 
     let values = [];
 
     await Promise.all(promises)
         .then(value => {
             values = [
-                { timeframe: '1m', value: value[0] },
-                { timeframe: '1h', value: value[1] },
-                { timeframe: '1d', value: value[2] },
-                { timeframe: '1w', value: value[3] },
-                { timeframe: '1M', value: value[4] },
+                { timeframe: '1m', price: value[0] },
+                { timeframe: '1h', price: value[1] },
+                { timeframe: '1d', price: value[2] },
+                { timeframe: '1w', price: value[3] },
+                { timeframe: '1M', price: value[4] },
             ]
         });
 
     return values;
     
+}
+
+async function getAssetBalances(parent, args, context, info) {
+    let now = new Date((new Date()).setSeconds(0));
+    let hourAgo = date.addHours(now, -1);
+    let dayAgo = date.addDays(now, -1);
+    let weekAgo = date.addDays(now, -7);
+    let monthAgo = date.addMonths(now, -1);
+
+    let promises = [];
+    promises.push(getAssetBalance(now, args.symbol, context));
+    promises.push(getAssetBalance(hourAgo, args.symbol, context));
+    promises.push(getAssetBalance(dayAgo, args.symbol, context));
+    promises.push(getAssetBalance(weekAgo, args.symbol, context));
+    promises.push(getAssetBalance(monthAgo, args.symbol, context));
+
+    let values = [];
+    await Promise.all(promises)
+        .then(value => {
+            values = [
+                { timeframe: '1m', balance: value[0] },
+                { timeframe: '1h', balance: value[1] },
+                { timeframe: '1d', balance: value[2] },
+                { timeframe: '1w', balance: value[3] },
+                { timeframe: '1M', balance: value[4] },
+            ]
+        });
+    return values;
+    
+}
+
+async function getAssetBalance(datetime, symbol, context) {
+    let wallet = await context.prisma.binanceWallet.findFirst({
+        where: { 
+            AND: [
+                { symbol: symbol },
+                { datetime: { lt: datetime } },
+            ]
+         },
+        orderBy: { datetime: 'desc' }
+    });
+    
+    if (wallet) {
+        console.log(`${symbol} balance was ${wallet.balance} at ${formatDate(datetime)}`);
+        return wallet.balance;
+    } else {
+        console.log(`No record of ${symbol} balance at ${formatDate(datetime)}`);
+        return -1
+    }
 }
 
 async function saveBinanceWalletBalance(parent, args, context, info) {
@@ -170,6 +219,7 @@ function formatDate(date) {
 
 module.exports = {
     getAssetName,
-    getAssetTimeframeValues,
+    getAssetPrices,
+    getAssetBalances,
     saveBinanceWalletBalance
 }

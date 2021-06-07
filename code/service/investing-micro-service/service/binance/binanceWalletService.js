@@ -29,9 +29,9 @@ class BinanceWalletService {
                 res.data.balances.forEach(balance => {
                     if (balance.free != 0) {
                         self.saveWalletBalance(balance.asset, datetime, balance.free)
-                        .then(res => {
-                            console.log(`Wallet balance added for ${balance.asset}: ${Number(balance.free).toFixed(2)}`);
-                        }, logErrors);
+                            .then(res => {
+                                console.log(`Wallet balance added for ${balance.asset}: ${Number(balance.free).toFixed(2)}`);
+                            }, logErrors);
                     }
                 });
             }, err => {

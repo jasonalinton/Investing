@@ -1,15 +1,15 @@
 <template>
     <div class="asset info d-flex flex-row justify-content-between" :style="{'padding-left': '4px'}">
         <div class="d-flex flex-column justify-content-between" :style="{'padding': '8px'}">
-            <div class="symbol">{{ symbol }}</div>
-            <div class="change" :class="changeClass()">{{ `$${formatNum(change.amount)} (${formatNum(change.percent)}%)` }}</div>
+            <div class="symbol">{{ asset.symbol }}</div>
+            <div class="change" :class="changeClass()">{{ `$${formatNum(asset.timeframe.change.value)} (${formatNum(asset.timeframe.change.valuePercent)}%)` }}</div>
         </div>
         <div class="d-flex flex-column justify-content-between" :style="{'padding': '8px'}">
-            <div class="value" :class="changeClass()">{{ currency(value) }}</div>
-            <div class="balance">{{ formatNum(balance) }}</div>
+            <div class="value" :class="changeClass()">{{ currency(asset.value) }}</div>
+            <div class="balance">{{ formatNum(asset.balance) }}</div>
         </div>
         <div class="d-flex" :style="{'padding': '8px'}">
-            <div :id="`${symbol}-info-chart`"></div>
+            <div :id="`${asset.symbol}-info-chart`"></div>
         </div>
     </div>
 </template>
@@ -20,22 +20,22 @@ import { createChart } from "lightweight-charts";
 export default {
     name: "AssetInfo",
     props: {
-        assetInfo: Object
+        asset: Object
     },
     data: function () {
         return {
-            name: this.assetInfo.name,
-            symbol: this.assetInfo.symbol,
-            balance: this.assetInfo.balance,
-            value: this.assetInfo.value,
-            kLines: this.assetInfo.kLines,
-            address: this.assetInfo.address,
-            change: this.assetInfo.change,
-            changes: this.assetInfo.changes,
+            // name: this.asset_in.name,
+            // symbol: this.asset_in.symbol,
+            // balance: this.asset_in.balance,
+            // value: this.asset_in.value,
+            // kLines: this.asset_in.kLines,
+            // address: this.asset_in.address,
+            // timeframe: this.asset_in.timeframes[1],
+            // timeframes: this.asset_in.timeframes,
         };
     },
     mounted: function() {
-        this.chart(this);
+        // this.chart(this);
     },
     methods: {
         chart: (self) => {
@@ -92,15 +92,15 @@ export default {
             chart.timeScale().fitContent();
         },
         changeClass: function () {
-            if (this.change.amount >= 0)
+            if (this.asset.timeframe.change.value >= 0)
                 return "green";
-            else if (this.change.amount < 0)
+            else if (this.asset.timeframe.change.value < 0)
                 return "red";
         },
         changeColor: function () {
-            if (this.change.amount >= 0)
+            if (this.asset.timeframe.change.value >= 0)
                 return "#4DF832";
-            else if (this.change.amount < 0)
+            else if (this.asset.timeframe.change.value < 0)
                 return "#FF0F23";
         },
         formatNum: function(number) {

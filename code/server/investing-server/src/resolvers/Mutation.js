@@ -398,7 +398,7 @@ async function addTransfer(parent, args, context, info) {
 
 async function getWalletBalance(parent, args, context, info) {
     let bogeWallet;
-    if (args.datetime && args.datetime) {
+    if (args.datetime) {
         bogeWallet = await context.prisma.bogeWallet.findFirst({
             where: {
                 AND: [

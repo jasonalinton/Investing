@@ -26,7 +26,8 @@ type Mutation {
 
   # Asset Info Service
   getAssetName(symbol: String): String!
-  getAssetTimeframeValues(symbol: String): [AssetTimeframeValue!]!
+  getAssetPrices(symbol: String): [AssetPrice!]!
+  getAssetBalances(symbol: String): [AssetBalance!]!
   saveBinanceWalletBalance(symbol: String!, datetime: String!, balance: Float!): BinanceWallet
 
 }
@@ -45,9 +46,14 @@ input AssetInput {
   name:   String
 }
 
-type AssetTimeframeValue {
+type AssetPrice {
   timeframe: String!
-  value:     Float!
+  price:     Float!
+}
+
+type AssetBalance {
+  timeframe: String!
+  balance:   Float!
 }
 
 type AssetValue {

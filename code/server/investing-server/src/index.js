@@ -7,12 +7,14 @@ const path = require('path');
 const Query = require('./resolvers/Query')
 const MutationFile = require('./resolvers/Mutation')
 const BogeLiquidityMutation = require('./resolvers/mutations/bogeLiquidityMutation')
-const AssetInfoService = require('./resolvers/mutations/assetInfoService')
+const AssetInfoMutation = require('./resolvers/mutations/assetInfoMutation')
+const PortfolioMutation = require('./resolvers/mutations/portfolioMutation')
 
 const Mutation = {
   ...MutationFile,
   ...BogeLiquidityMutation,
-  ...AssetInfoService
+  ...AssetInfoMutation,
+  ...PortfolioMutation
 }
 
 const resolvers = {
