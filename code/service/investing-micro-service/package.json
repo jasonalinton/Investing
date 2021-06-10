@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./index.js --exec babel-node -e js"
+    "start": "nodemon ./index.js --exec babel-node -e js",
+    "risk": "nodemon ./service/risk/riskManagement.js --exec babel-node -e js"
   },
   "author": "Jason A Linton",
   "license": "ISC",
@@ -17,8 +18,10 @@
     "i": "^0.3.6",
     "nodemon": "^2.0.7",
     "npm": "^7.13.0",
+    "pandas": "^0.0.3",
     "socket.io": "^4.1.1",
-    "socket.io-client": "^4.1.2"
+    "socket.io-client": "^4.1.2",
+    "talib": "^1.1.4"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
