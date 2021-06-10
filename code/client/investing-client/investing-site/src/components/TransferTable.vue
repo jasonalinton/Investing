@@ -221,6 +221,8 @@ table.transfer tr[data-sender="0xfd345014ed667bb07eb26345e66addc9e8164b3b"] td,
 table.transfer tr[data-reciever="0xfd345014ed667bb07eb26345e66addc9e8164b3b"] td,
 table.transfer tr[data-sender="0x003c2f2dbcd1a57c081155c09aa72ba349da3752"] td,
 table.transfer tr[data-reciever="0x003c2f2dbcd1a57c081155c09aa72ba349da3752"] td,
+table.transfer tr[data-sender="0xf2FE653B6F00AaA96Dfb373eD30d569656EbeE21"] td,
+table.transfer tr[data-reciever="0xf2FE653B6F00AaA96Dfb373eD30d569656EbeE21"] td,
 table.transfer tr[data-sender="0xdac5ee9e4e1d0a1a923241400dd84cf1df77d732"] td,
 table.transfer tr[data-reciever="0xdac5ee9e4e1d0a1a923241400dd84cf1df77d732"] td  {
     background-color: #444c53;

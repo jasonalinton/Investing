@@ -1,5 +1,6 @@
 <template>
-    <div class="asset info d-flex flex-row justify-content-between" :style="{'padding-left': '4px'}">
+    <div class="asset info d-flex flex-row justify-content-between" :style="{'padding-left': '4px'}"
+        @click="onAssetClicked">
         <div class="d-flex flex-column justify-content-between" :style="{'padding': '8px'}">
             <div class="symbol">{{ asset.symbol }}</div>
             <div class="change" :class="changeClass()">{{ `$${formatNum(asset.timeframe.change.value)} (${formatNum(asset.timeframe.change.valuePercent)}%)` }}</div>
@@ -15,6 +16,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import { createChart } from "lightweight-charts";
 
 export default {
@@ -24,14 +26,7 @@ export default {
     },
     data: function () {
         return {
-            // name: this.asset_in.name,
-            // symbol: this.asset_in.symbol,
-            // balance: this.asset_in.balance,
-            // value: this.asset_in.value,
-            // kLines: this.asset_in.kLines,
-            // address: this.asset_in.address,
-            // timeframe: this.asset_in.timeframes[1],
-            // timeframes: this.asset_in.timeframes,
+            
         };
     },
     mounted: function() {
@@ -91,6 +86,23 @@ export default {
 
             chart.timeScale().fitContent();
         },
+        getBars: async (symbol) => {
+            var data = {
+                query: `
+                    mutation {
+                        getAssetCandles(symbol: "${symbol}", interval: "3h") {
+                            openTime
+                            open
+                            high
+                            low
+                            volume
+                            close
+                        }
+                    }
+                `
+            }
+            return axios.post('http://localhost:4000/graphql', data);
+        },
         changeClass: function () {
             if (this.asset.timeframe.change.value >= 0)
                 return "green";
@@ -108,9 +120,22 @@ export default {
         },
         currency: function(number) {
             return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' }).format(number);
+        },
+        onAssetClicked: function() {
+            // this.getBars(this.asset.symbol)
+            // .then(res => {
+            //     self.data = res.data.data.getAssetCandles;
+            //     this.$emit('onAssetClicked', clone(this.asset));
+            // })
+            
+            this.$emit('onAssetClicked', clone(this.asset));
         }
     }
 };
+
+function clone(item) {
+  return JSON.parse(JSON.stringify(item));
+}
 //
 </script>
 

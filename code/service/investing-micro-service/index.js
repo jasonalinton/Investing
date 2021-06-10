@@ -10,7 +10,7 @@ const port = 3050;
 import BNBService from './service/bnbService.js';
 import BogeTransferService from './service/boge/bogeTransferService';
 import BogeHistoryService from './service/boge/bogeHistoryService';
-import BogeWalletService from './service/boge/bogeWalletService';
+import BogeWalletService from './service/boge/bogeWalletService'
 import BogeLiquidityService from './service/boge/bogeLiquidityService';
 import AssetValueService from './service/binance/assetValueService';
 import AssetListService from './service/binance/assetListService';
@@ -55,22 +55,13 @@ const assetListService = new AssetListService(60000, "http://localhost:3050");
 assetListService.start();
 
 
-const assets = [
-    'ADA',
-    'BTC',
-    'ETH',
-    'DOGE',
-    'MATIC',
-    'ONE',
-    'XRP'
-];
-const intervals = [
-    '1m'
-]
+const assets = [ 'ADA', 'BTC', 'ETH', 'DOGE', 'MATIC', 'ONE', 'XRP' ];
+const intervals = [ '1m', '1h', '1d' ]
 assets.forEach(asset => {
     const assetValueService = new AssetValueService(asset, intervals, 60000);
     assetValueService.start();
 });
+
 
 const bnbService = new BNBService(60000);
 bnbService.start()

@@ -24,10 +24,11 @@ type Mutation {
   getBogeLiquidity(datetime: String!): BogeLiquidity!
   addBogeLiquidity(datetime: String!, bnbBalance: Float!, bogeBalance: Float!, address: String!): BogeLiquidity
 
-  # Asset Info Service
+  # Asset Info Mutation
   getAssetName(symbol: String): String!
   getAssetPrices(symbol: String): [AssetPrice!]!
   getAssetBalances(symbol: String): [AssetBalance!]!
+  getAssetCandles(symbol: String!, interval: String, periods: Int): [Bar!]!
   saveBinanceWalletBalance(symbol: String!, datetime: String!, balance: Float!): BinanceWallet
 
 }
@@ -96,6 +97,16 @@ input AssetValueInput {
   takerBuyQuoreAssetVolume: Float
   baseAsset:                AssetInput!
   quoteAsset:               AssetInput!
+}
+
+type Bar {
+  openTime:                 String!
+  open:                     Float!
+  high:                     Float!
+  low:                      Float!
+  close:                    Float!
+  volume:                   Float!
+  closeTime:                String!
 }
 
 type BogeTransfer {

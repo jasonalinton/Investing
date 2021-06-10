@@ -12,6 +12,7 @@ class AssetListService {
         this.assets = [];
         this.followedAssets = [
             'ADA',
+            'BNB',
             'BTC',
             'ETH',
             'DOGE',
@@ -43,7 +44,7 @@ class AssetListService {
                 let promises = [];
 
                 res.data.balances.forEach(balance => {
-                    if (balance.free > 0 && self.followedAssets.includes(balance.asset)) {
+                    if (self.followedAssets.includes(balance.asset)) {
                         let asset = { symbol: balance.asset, balance: Number(balance.free), timeframes: [] };
                         self.assets.push(asset);
 

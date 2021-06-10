@@ -33,7 +33,7 @@ export default {
         { text: "30d", getDate: monthAgo, balance: null, change: { balance: null, percent: null } },
         { text: "1hr", getDate: hourAgo, balance: null, change: { balance: null, percent: null } },
       ],
-      timeframe: null,
+      timeframe: { text: "24hrs", getDate: dayAgo, balance: 0, change: { balance: 0, percent: 0 } },
       portfolio: {
         value: "$ " + (9420.69).toLocaleString(),
         change: {

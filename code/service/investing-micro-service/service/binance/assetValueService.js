@@ -14,8 +14,13 @@ class AssetValueService {
         '15m',
         '30m',
         '1h',
+        '2h',
+        '4h',
+        '6h',
+        '8h',
         '12h',
         '1d',
+        '3d',
         '1w',
         '1M'
     ];
@@ -67,9 +72,9 @@ class AssetValueService {
     async processAssetValues(self, barInterval) {
         return new Promise((resolve) => {
             self.getLastSavedTime(self.symbol, barInterval)
-                .then(response => self.getAssetHistory_Priomise(self, barInterval, response))
-                .then(response => self.saveAssetHistory_Promise(self, response, barInterval))
-                .then(() => resolve())
+                .then(response => self.getAssetHistory_Priomise(self, barInterval, response), logErrors)
+                .then(response => self.saveAssetHistory_Promise(self, response, barInterval), logErrors)
+                .then(() => resolve(), logErrors)
                 .catch((error) => {
                     if (error.response.data.errors)
                         error.response.data.errors.forEach(err => console.log(err));
@@ -190,6 +195,12 @@ class AssetValueService {
         }
         return axios.post('http://localhost:4000/graphql', data);
     }
+}
+
+function logErrors(err) {
+    err.response.data.errors.forEach(error => {
+        console.error(error.message);
+    })
 }
 
 function formatDate(date) {

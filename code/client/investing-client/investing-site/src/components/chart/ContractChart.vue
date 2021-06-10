@@ -22,7 +22,7 @@ export default {
   },
   created: function () {
     initChart(this);
-    this.intervalID = setInterval(initChart, 60000, this);
+    //this.intervalID = setInterval(initChart, 60000, this);
     window.addEventListener('resize', this.onResize);
   },
   methods: {
@@ -39,7 +39,8 @@ export default {
 };
 
 function initChart(self) {
-    var startDatetime = date.addDays(new Date(), -10);
+    var startDatetime = date.addDays(new Date(), -2);
+    // let startDatetime = new Date(2021, 3, 18, 16, 30, 0);
 
     getBogeKlines(startDatetime, null)
         .then(res => {

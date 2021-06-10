@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex flex-row justify-content-start align-items-center" :style="{'height': '100%'}">
-        <AssetInfo v-for="(asset, index) in assets" :key="index" :asset="asset"></AssetInfo>
+        <AssetInfo v-for="(asset, index) in assets" :key="index" :asset="asset" @onAssetClicked="onAssetClicked"></AssetInfo>
     </div>
 </template>
 
@@ -32,6 +32,9 @@ export default {
             self.assets = assetList;
         });
     },
+    onAssetClicked: function(asset) {
+        this.$emit('onAssetClicked', asset);
+    }
   },
 };
 </script>

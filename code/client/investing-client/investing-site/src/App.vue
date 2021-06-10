@@ -9,7 +9,7 @@
   >
     <div class="col">
       <!-- Header -->
-      <div class="row g-4">
+      <div id="app-header" class="row gx-4">
         <div class="col-auto">
           <div class="d-flex flex-row justify-content-start">
             <BalanceInfo :address='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'></BalanceInfo>
@@ -17,29 +17,40 @@
           </div>
         </div>
         <div class="col" :style="{'overflow': 'scroll'}">
-          <AssetList></AssetList>
+          <AssetList @onAssetClicked="onAssetClicked"></AssetList>
         </div>
       </div>
       <!-- Chart -->
-      <div class="row g-0">
+      <div id="app-chart" class="row g-0" :style="{ 'height': style.chartHeight + 'px' }">
         <div class="col">
-          <!-- <MyChart v-if="showChart" :bnbKlines="klines" :type="chartType"></MyChart> -->
-          <ContractChart type="area"></ContractChart>
+          <ContractChart v-if="chartType == 'contract'" type="area"></ContractChart>
+          <AssetChart v-if="chartType=='asset' && renderAssetChart" type="candelstick" :asset="asset"></AssetChart>
+          <SplitTimeframeCharts v-if="chartType=='split' && renderAssetChart" type="candelstick" :asset="asset"></SplitTimeframeCharts>
         </div>
       </div>
-      <!-- Tables -->
-        <TransferTable :txFromAddress='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'> </TransferTable>
-        <!-- <TransferTable :tableHeight="tableHeight"> </TransferTable> -->
+      <!-- Body -->
+      <div id="app-body" class="row g-0" :style="{ 'height': style.bodyHeight + 'px', 'overflow-y': 'scroll', 'overflow-x': 'clip' }">
+        <div class="col">
+          <TransferTable v-if="bodyType == 'table'" :txFromAddress='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'> </TransferTable>
+          <RiskManagement v-if="bodyType == 'risk'" :asset="asset"></RiskManagement>
+        </div>
+      </div>
+        
     </div>
   </div>
 </template>
 
 <script>
+import $ from "jquery";
+
 import ContractInfo from "./components/info/ContractInfo.vue";
 import BalanceInfo from "./components/info/BalanceInfo.vue";
 import AssetList from "./components/info/AssetList.vue";
 import ContractChart from "./components/chart/ContractChart.vue";
 import TransferTable from "./components/TransferTable.vue";
+import RiskManagement from "./components/risk/RiskManagement.vue";
+import AssetChart from "./components/chart/AssetChart.vue";
+import SplitTimeframeCharts from "./components/chart/SplitTimeframeCharts.vue";
 
 export default {
   name: "App",
@@ -49,10 +60,17 @@ export default {
     AssetList,
     ContractChart,
     TransferTable,
+    RiskManagement,
+    AssetChart,
+    SplitTimeframeCharts
   },
   data: function () {
     return {
       showChart: false,
+      bodyType: 'table',
+      chartType: 'contract',
+      renderAssetChart: true,
+      asset: {},
       style: {
         windowPadding: {
           left: 12,
@@ -60,6 +78,8 @@ export default {
           top: 0,
           bottom: 0,
         },
+        bodyHeight: 0,
+        chartHeight: 500
       },
       assetInfos: [
         {
@@ -108,13 +128,48 @@ export default {
       ]
     };
   },
-  created: function () {
-    
+  beforeMount: function() {
+    this.asset = this.assetInfos[0];
   },
-  computed: {
-    
+  mounted: function() {
+    this.onResize();
+  },
+  created: function () {
+    window.addEventListener('resize', this.onResize);
+  },
+  methods: {
+    onResize() {
+      this.style.chartHeight = this.getChartHeight();
+      this.style.bodyHeight = this.getBodyHeight();
+    },
+    bodyStyle: function () {
+      let height = $(window).height() - $('#app-header').height() - $('#app-chart').height();
+      return { 'height': height };
+    },
+    getChartHeight: function () {
+      return 500;
+    },
+    getBodyHeight: function () {
+      console.log("window-height " + $(window.top).height());
+      console.log("header-height " + $('#app-header').height());
+      console.log("chart-height " + $('#app-chart').height());
+      return $(window.top).height() - $('#app-header').height() - $('#app-chart').height();
+    },
+    onAssetClicked: function(asset) {
+      this.asset = clone(asset);
+      this.bodyType = 'risk';
+      this.chartType = 'split';
+      this.renderAssetChart = false;
+      this.$nextTick(() => {
+        this.renderAssetChart = true;
+      });
+    }
   },
 };
+
+function clone(item) {
+  return JSON.parse(JSON.stringify(item));
+}
 </script>
 
 <style>
@@ -123,7 +178,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #56799c;
   margin-top: 60px;
 }
 </style>

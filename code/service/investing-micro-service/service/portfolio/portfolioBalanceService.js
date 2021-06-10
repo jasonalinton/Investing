@@ -84,6 +84,9 @@ class PortfolioBalanceService {
                 res.data.balances.forEach(balance => {
                     if (balance.free != 0 && balance.asset != 'USD') {
                         promises.push(self.getAssetValue(self, balance.asset, Number(balance.free)));
+                    } else if (balance.asset == 'USD') {
+                        let amount = Number(balance.free);
+                        self.assets.push({ symbol: 'USD', balance: amount, price: amount, value: amount });
                     }
                 });
 
