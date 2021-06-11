@@ -22,7 +22,7 @@ export default {
   },
   created: function () {
     initChart(this);
-    //this.intervalID = setInterval(initChart, 60000, this);
+    this.intervalID = setInterval(initChart, 60000, this);
     window.addEventListener('resize', this.onResize);
   },
   methods: {

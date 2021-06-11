@@ -1,5 +1,5 @@
 <template>
-    <div class="contract info d-flex flex-row align-items-center">
+    <div class="contract info d-flex flex-row align-items-center" @click="contractClicked">
 
     <!-- Logo -->
     <img class="logo" src="/boge-transparent.png" width="55" height="60" />
@@ -45,7 +45,13 @@ export default {
         setInterval(setContractPrice, 60000, self);
     },
     methods: {
-
+      contractClicked: function() {
+        this.oncontractclicked();
+        this.$emit('oncontractclicked', "Hello");
+      },
+      oncontractclicked: function() {
+          this.$emit('oncontractclicked', "Hello");
+      }
     }
 };
 

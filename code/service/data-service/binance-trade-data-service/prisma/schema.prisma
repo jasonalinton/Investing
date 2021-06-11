@@ -1,0 +1,34 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Trade {
+  id               Int      @id @default(autoincrement())
+  datetime         DateTime
+  symbol           String
+  feeSymbol        String   @default("USD")
+  type             String
+  amount_Traded    Float
+  amount_Fee       Float?
+  price_Unit       Float?
+  price_Total      Float?
+  price_Subtotal   Float?
+  orderID_Exchange Int?
+  idTransaction    Int?
+  idExchange       Int?
+  idOrder          Int?
+  idType           Int?
+  idAsset          Int?
+  idAsset_Fee      Int?
+  idAsset_Price    Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+}

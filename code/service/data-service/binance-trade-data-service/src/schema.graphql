@@ -1,0 +1,51 @@
+type Query {
+  trades: [Trade]
+}
+
+type Mutation {
+  trades(symbol: String!): [Trade]
+  addTrade(trade: TradeInput!): Trade
+  getLastTradeDatetime(symbol: String!, feeSymbol: String): String
+}
+
+type Trade {
+  id: ID!
+  datetime: String
+  symbol: String
+  type: String
+  feeSymbol: String
+  amount_Traded: Float
+  amount_Fee: Float
+  price_Unit: Float
+  price_Total: Float
+  price_Subtotal: Float
+  orderID_Exchange: Int
+  idTransaction: Int
+  idExchange: Int
+  idOrder: Int
+  idType: Int
+  idAsset: Int
+  idAsset_Fee: Int
+  idAsset_Price: Int
+}
+
+input TradeInput {
+  id: ID
+  datetime: String!
+  symbol: String!
+  type: String!
+  feeSymbol: String
+  amount_Traded: Float
+  amount_Fee: Float
+  price_Unit: Float
+  price_Total: Float
+  price_Subtotal: Float
+  orderID_Exchange: Int
+  idTransaction: Int
+  idExchange: Int
+  idOrder: Int
+  idType: Int
+  idAsset: Int
+  idAsset_Fee: Int
+  idAsset_Price: Int
+}

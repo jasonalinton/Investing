@@ -23,7 +23,7 @@
       <!-- Chart -->
       <div id="app-chart" class="row g-0" :style="{ 'height': style.chartHeight + 'px' }">
         <div class="col">
-          <ContractChart v-if="chartType == 'contract'" type="area"></ContractChart>
+          <ContractChart v-if="chartType == 'contract' && renderContractChart" type="area" @onContractClicked="onContractClicked"></ContractChart>
           <AssetChart v-if="chartType=='asset' && renderAssetChart" type="candelstick" :asset="asset"></AssetChart>
           <SplitTimeframeCharts v-if="chartType=='split' && renderAssetChart" type="candelstick" :asset="asset"></SplitTimeframeCharts>
         </div>
@@ -33,6 +33,11 @@
         <div class="col">
           <TransferTable v-if="bodyType == 'table'" :txFromAddress='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'> </TransferTable>
           <RiskManagement v-if="bodyType == 'risk'" :asset="asset"></RiskManagement>
+          <div  class="row">
+            <div class="col-12">
+              <TradeTable v-if="renderTradeTable" :asset="asset"></TradeTable>
+            </div>
+          </div>
         </div>
       </div>
         
@@ -51,6 +56,7 @@ import TransferTable from "./components/TransferTable.vue";
 import RiskManagement from "./components/risk/RiskManagement.vue";
 import AssetChart from "./components/chart/AssetChart.vue";
 import SplitTimeframeCharts from "./components/chart/SplitTimeframeCharts.vue";
+import TradeTable from './components/table/TradeTable.vue'
 
 export default {
   name: "App",
@@ -62,7 +68,8 @@ export default {
     TransferTable,
     RiskManagement,
     AssetChart,
-    SplitTimeframeCharts
+    SplitTimeframeCharts,
+    TradeTable
   },
   data: function () {
     return {
@@ -70,6 +77,8 @@ export default {
       bodyType: 'table',
       chartType: 'contract',
       renderAssetChart: true,
+      renderTradeTable: true,
+      renderContractChart: true,
       asset: {},
       style: {
         windowPadding: {
@@ -150,18 +159,26 @@ export default {
       return 500;
     },
     getBodyHeight: function () {
-      console.log("window-height " + $(window.top).height());
-      console.log("header-height " + $('#app-header').height());
-      console.log("chart-height " + $('#app-chart').height());
       return $(window.top).height() - $('#app-header').height() - $('#app-chart').height();
     },
     onAssetClicked: function(asset) {
       this.asset = clone(asset);
       this.bodyType = 'risk';
-      this.chartType = 'split';
+      this.chartType = 'asset';
       this.renderAssetChart = false;
+      this.renderTradeTable = false;
       this.$nextTick(() => {
         this.renderAssetChart = true;
+      this.renderTradeTable = true;
+      });
+    },
+    onContractClicked: function(contract) {
+      console.log(contract);
+      this.bodyType = 'table';
+      this.chartType = 'contract';
+      this.renderContractChart = false;
+      this.$nextTick(() => {
+        this.renderContractChart = true;
       });
     }
   },

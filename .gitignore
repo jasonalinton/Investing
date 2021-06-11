@@ -26,3 +26,4 @@ pnpm-debug.log*
 *.sw?
 server/investing-server/prisma/dev.db
 code/server/investing-server/prisma/dev.db
+code/service/data-service/binance-trade-data-service/prisma/dev.db

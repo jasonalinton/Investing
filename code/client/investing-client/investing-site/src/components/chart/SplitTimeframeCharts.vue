@@ -37,15 +37,15 @@ export default {
     };
   },
   created: function () {
-    this.initChart(this, this.minuteChart, "minute-chart", this.minuteData, '1m');
+    this.initChart(this, this.minuteChart, "minute-chart", this.minuteData, '1m', 30);
     this.initChart(this, this.hourChart, "hour-chart", this.hourData, '1h');
     this.initChart(this, this.dayChart, "day-chart", this.dayData, '1d');
 
     window.addEventListener('resize', this.onResize);
   },
   methods: {
-    initChart: (self, chart, chartID, data, interval) => {
-        self.getBars(self.asset.symbol, interval)
+    initChart: (self, chart, chartID, data, interval, periods) => {
+        self.getBars(self.asset.symbol, interval, periods)
             .then(res => {
                 data = res.data.data.getAssetCandles;
             })
@@ -60,12 +60,13 @@ export default {
     },
     createCandelstickChart: createCandelstickChart,
     createAreaChart: createAreaChart,
-    getBars: async (symbol, interval) => {
+    getBars: async (symbol, interval, periods) => {
         interval = interval ?? '1h';
+        periods = periods ?? 360;
         var data = {
             query: `
             mutation {
-                getAssetCandles(symbol: "${symbol}", interval: "${interval}", periods: 360) {
+                getAssetCandles(symbol: "${symbol}", interval: "${interval}", periods: ${periods}) {
                     openTime
                     open
                     high
