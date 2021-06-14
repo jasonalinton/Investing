@@ -28,34 +28,33 @@ class BogeLiquidityService {
     }
 
     async run(self) {
-        return new Promise((resolve) => {
-            let datetime = new Date();
-            const BOGE9Promise = self.getLiquidity(self, datetime, self.pancakeAddress.BOGE_9);
-            const RouterV2Promise = self.getLiquidity(self, datetime, self.pancakeAddress.RouterV2);
-
-            Promise.all([BOGE9Promise, RouterV2Promise]).then(values => {
-                resolve();
-                return;
-            }, error => { console.log(error) });
-        }, error => { console.log(error) });
+        
     }
 
-    async getLiquidity(self, datetime, pancakeAddress) {
-        return new Promise((resolve) => {
-            const bnbPromise = self.getBNBBalance(pancakeAddress);
-            const bogePromise = self.getBOGEBalance(pancakeAddress);
+    async run(self) {
+        let datetime = new Date();
+        const BOGE9Promise = self.getLiquidity(self, self.pancakeAddress.BOGE_9);
+        const RouterV2Promise = self.getLiquidity(self, self.pancakeAddress.RouterV2);
 
-            Promise.all([bnbPromise, bogePromise]).then(values => {
-                const bnbBalance = values[0].data.result;
-                const bogeBalance = values[1].data.result;
-
-                self.saveBogeLiquidity(datetime, bnbBalance, bogeBalance, pancakeAddress)
-                    .then(() => { }, error => { console.log(error.response.data.errors) })
-
-                resolve();
-                return;
+        return Promise.all([BOGE9Promise, RouterV2Promise])
+            .then(values => {
+                let boge9 = values[0];
+                let v2 = values[1];
+                self.saveBogeLiquidity(datetime, boge9.bnbBalance, boge9.bogeBalance, v2.bnbBalance, v2.bogeBalance)
             }, error => { console.log(error) });
-        });
+    }
+
+    async getLiquidity(self, pancakeAddress) {
+        const bnbPromise = self.getBNBBalance(pancakeAddress);
+        const bogePromise = self.getBOGEBalance(pancakeAddress);
+
+        return Promise.all([bnbPromise, bogePromise]).then(values => {
+            let liquidity = {
+                bnbBalance: values[0].data.result,
+                bogeBalance: values[1].data.result
+            }
+            return liquidity;
+        }, error => { console.log(error) });
     }
 
     async getBNBBalance(pancakeAddress) {
@@ -66,15 +65,16 @@ class BogeLiquidityService {
         return axios.get(`https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba&address=${pancakeAddress}&tag=latest&apikey=BG6DCTFBA1MWMYBZV7QGS831QVFMUADUB9`);
     }
 
-    async saveBogeLiquidity(datetime, bnbBalance, bogeBalance, address) {
+    async saveBogeLiquidity(datetime, bnbBalance_BOGE9, bogeBalance_BOGE9, bnbBalance_V2, bogeBalance_V2) {
         var data = {
             query: `
             mutation {
                 addBogeLiquidity(
                   datetime: "${datetime.toJSON()}"
-                  bnbBalance: ${Number(bnbBalance) / 1000000000000000000}
-                  bogeBalance: ${Number(bogeBalance) / 1000000000}
-                  address: "${address}"
+                  bnbBalance_BOGE_9: ${Number(bnbBalance_BOGE9) / 1000000000000000000}
+                  bogeBalance_BOGE_9: ${Number(bogeBalance_BOGE9) / 1000000000}
+                  bnbBalance_V2: ${Number(bnbBalance_V2) / 1000000000000000000}
+                  bogeBalance_V2: ${Number(bogeBalance_V2) / 1000000000}
                 ) {
                   id
                   datetime
@@ -85,6 +85,7 @@ class BogeLiquidityService {
               }
             `
         }
+        // console.log(data.query);
         return axios.post('http://localhost:4000/graphql', data);
     }
 

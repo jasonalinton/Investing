@@ -70,7 +70,6 @@ export default {
             }
             `
         }
-        console.log(data.query);
         return axios.post('http://localhost:4000/graphql', data);
     },
     onResize() {

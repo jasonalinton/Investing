@@ -13,7 +13,7 @@
         <div class="col-auto">
           <div class="d-flex flex-row justify-content-start">
             <BalanceInfo :address='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'></BalanceInfo>
-            <ContractInfo :address='"0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"'></ContractInfo>
+            <ContractInfo :address='"0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"' @onContractClicked="onContractClicked"></ContractInfo>
           </div>
         </div>
         <div class="col" :style="{'overflow': 'scroll'}">
@@ -23,7 +23,7 @@
       <!-- Chart -->
       <div id="app-chart" class="row g-0" :style="{ 'height': style.chartHeight + 'px' }">
         <div class="col">
-          <ContractChart v-if="chartType == 'contract' && renderContractChart" type="area" @onContractClicked="onContractClicked"></ContractChart>
+          <ContractChart v-if="chartType == 'contract' && renderContractChart" type="area"></ContractChart>
           <AssetChart v-if="chartType=='asset' && renderAssetChart" type="candelstick" :asset="asset"></AssetChart>
           <SplitTimeframeCharts v-if="chartType=='split' && renderAssetChart" type="candelstick" :asset="asset"></SplitTimeframeCharts>
         </div>
@@ -172,8 +172,7 @@ export default {
       this.renderTradeTable = true;
       });
     },
-    onContractClicked: function(contract) {
-      console.log(contract);
+    onContractClicked: function() {
       this.bodyType = 'table';
       this.chartType = 'contract';
       this.renderContractChart = false;

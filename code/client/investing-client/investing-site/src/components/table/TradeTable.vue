@@ -4,8 +4,8 @@
             <tr>
                 <th class="d-none d-md-table-cell"></th>
                 <th>Time</th>
-                <th>Price</th>
                 <th>Amount</th>
+                <th>Price</th>
                 <th>Fee</th>
                 <th>Total</th>
                 <!-- <th>feeSymbol</th>
@@ -20,17 +20,17 @@
                         <span>{{ formatDate(trade.datetime) }}</span>
                     </div>
                 </td>
-
-                <!-- Price Unit -->
-                <td class="center">
-                    {{ currency(trade.price_Unit) }}
-                </td>
                 
                 <!-- Amount -->
                 <td>
                     <div class="d-flex flex-column">
                         <span :style="{ 'margin-bottom': '2px' }">{{ Number(trade.amount_Traded.toFixed(4)).toLocaleString() }}</span>
                     </div>
+                </td>
+
+                <!-- Price Unit -->
+                <td class="center">
+                    {{ currency(trade.price_Unit) }}
                 </td>
 
                 <!-- Fee -->
@@ -86,7 +86,6 @@ export default {
                     }
                     `
             };
-            console.log(data.query);
             return axios.post('http://localhost:4001/graphql', data)
                 .then(result => {
                     result.data.data.trades.forEach(trade => {
@@ -111,6 +110,8 @@ export default {
 };
 </script>
 
+<style>
+
 .trade-list-leave-to, .trade-list-enter {
     opacity: 0;
     transform: translateY(30px);
@@ -119,8 +120,6 @@ export default {
 .trade-list-enter-active, .trade-list-leave-active {
     transition: all 1s;
 }
-
-<style>
 
 td.center {
     font-size: 14px;

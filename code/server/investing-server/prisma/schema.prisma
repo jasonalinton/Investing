@@ -8,38 +8,38 @@ generator client {
 }
 
 model Asset {
-  id         Int      @id @default(autoincrement())
-  symbol     String   @unique
-  name       String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
-  baseAsset  Asset[]  @relation("AssetPair", references: [id])
-  quoteAsset Asset[]  @relation("AssetPair", references: [id])
-  assetValueBase AssetValue[] @relation("assetValueBase")
+  id              Int          @id @default(autoincrement())
+  symbol          String       @unique
+  name            String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now()) @updatedAt
+  baseAsset       Asset[]      @relation("AssetPair", references: [id])
+  quoteAsset      Asset[]      @relation("AssetPair", references: [id])
+  assetValueBase  AssetValue[] @relation("assetValueBase")
   assetValueQuote AssetValue[] @relation("assetValueQuote")
 }
 
 model AssetValue {
-  id                        Int      @id @default(autoincrement())
-  idBaseAsset               Int
-  idQuoteAsset              Int
-  symbol                    String   
-  interval                  String  
-  openTime                  DateTime
-  open                      Float
-  high                      Float
-  low                       Float
-  close                     Float
-  volume                    Float
-  closeTime                 DateTime
-  quoteAssetVolume          Float?
-  numberOfTrades            Float?
-  takerBuyBaseAssetVolume   Float?
-  takerBuyQuoreAssetVolume  Float?
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @default(now()) @updatedAt
-  baseAsset                 Asset  @relation(name: "assetValueBase", fields: [idBaseAsset], references: [id])
-  quoteAsset                Asset  @relation(name: "assetValueQuote", fields: [idQuoteAsset], references: [id])
+  id                       Int      @id @default(autoincrement())
+  idBaseAsset              Int
+  idQuoteAsset             Int
+  symbol                   String
+  interval                 String
+  openTime                 DateTime
+  open                     Float
+  high                     Float
+  low                      Float
+  close                    Float
+  volume                   Float
+  closeTime                DateTime
+  quoteAssetVolume         Float?
+  numberOfTrades           Float?
+  takerBuyBaseAssetVolume  Float?
+  takerBuyQuoreAssetVolume Float?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @default(now()) @updatedAt
+  baseAsset                Asset    @relation(name: "assetValueBase", fields: [idBaseAsset], references: [id])
+  quoteAsset               Asset    @relation(name: "assetValueQuote", fields: [idQuoteAsset], references: [id])
   // assetPair                 AssetPair[] @relation(fields: [idAssetPair], references: [id])
 }
 
@@ -60,24 +60,38 @@ model BogeTransfers {
 }
 
 model BogeWallet {
-  id              Int       @id @default(autoincrement())
-  datetime        DateTime?
-  balance         Float?
-  address         String?
-  name            String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now()) @updatedAt
+  id        Int       @id @default(autoincrement())
+  datetime  DateTime?
+  balance   Float?
+  address   String?
+  name      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
 }
 
 model BogeLiquidity {
-  id              Int       @id @default(autoincrement())
-  datetime        DateTime?
-  bnbBalance      Float?
-  bogeBalance     Float?
-  price           Float?
-  address         String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now()) @updatedAt
+  id          Int       @id @default(autoincrement())
+  datetime    DateTime?
+  bnbBalance  Float?
+  bogeBalance Float?
+  price       Float?
+  address     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+}
+
+model BogeLiquidities {
+  id                 Int       @id @default(autoincrement())
+  datetime           DateTime?
+  price              Float?
+  bnbBalance_BOGE_9  Float?
+  bogeBalance_BOGE_9 Float?
+  price_BOGE_9       Float?
+  bnbBalance_V2      Float?
+  bogeBalance_V2     Float?
+  price_V2           Float?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
 }
 
 // model User {
@@ -87,10 +101,10 @@ model BogeLiquidity {
 // }
 
 model BinanceWallet {
-  id              Int       @id @default(autoincrement())
-  datetime        DateTime?
-  symbol          String?
-  balance         Float?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now()) @updatedAt
+  id        Int       @id @default(autoincrement())
+  datetime  DateTime?
+  symbol    String?
+  balance   Float?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
 }

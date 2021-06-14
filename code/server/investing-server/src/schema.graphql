@@ -14,166 +14,202 @@ type Mutation {
   deleteLastTwoKlines(symbol: String!, interval: String!): Boolean!
   getAndDeleteLastKlines(symbol: String!, interval: String!): AssetValue
   getAssetValue(symbol: String!, datetime: String!): AssetValue
-  getAssetValues(symbol: String!, datetimes:[String]!): [AssetValue!]!
-  getAssetValueRange(symbol: String!, startDatetime: String, endDatetime: String): [AssetValue!]!
+  getAssetValues(symbol: String!, datetimes: [String]!): [AssetValue!]!
+  getAssetValueRange(
+    symbol: String!
+    startDatetime: String
+    endDatetime: String
+  ): [AssetValue!]!
   getBogeTransfers(address: String): [BogeTransfer!]
-  getBogeTransferRange(address: String, startDatetime: String, endDatetime: String): [BogeTransfer!]
-  saveBNBValue(id: Int bnbAmount: Float): BogeTransfer
+  getBogeTransferRange(
+    address: String
+    startDatetime: String
+    endDatetime: String
+  ): [BogeTransfer!]
+  saveBNBValue(id: Int, bnbAmount: Float): BogeTransfer
   getWalletBalance(address: String!, datetime: String): BogeWallet
-  addWalletBalance(datetime: String!, balance: Float!, name: String!, address: String!): BogeWallet
+  addWalletBalance(
+    datetime: String!
+    balance: Float!
+    name: String!
+    address: String!
+  ): BogeWallet
+  getLiquidityRange(start: String!, end: String): [BogeLiquidity!]!
   getBogeLiquidity(datetime: String!): BogeLiquidity!
-  addBogeLiquidity(datetime: String!, bnbBalance: Float!, bogeBalance: Float!, address: String!): BogeLiquidity
+  addBogeLiquidity(
+    datetime: String!
+    bnbBalance_BOGE_9: Float!
+    bogeBalance_BOGE_9: Float!
+    bnbBalance_V2: Float!
+    bogeBalance_V2: Float!
+  ): BogeLiquidity
+  fixBogeLiquidity(address: String): String
 
   # Asset Info Mutation
   getAssetName(symbol: String): String!
   getAssetPrices(symbol: String): [AssetPrice!]!
   getAssetBalances(symbol: String): [AssetBalance!]!
   getAssetCandles(symbol: String!, interval: String, periods: Int): [Bar!]!
-  saveBinanceWalletBalance(symbol: String!, datetime: String!, balance: Float!): BinanceWallet
-
+  saveBinanceWalletBalance(
+    symbol: String!
+    datetime: String!
+    balance: Float!
+  ): BinanceWallet
 }
 
 type Asset {
-  id:     ID! 
-  text:   String!
+  id: ID!
+  text: String!
   symbol: String!
-  name:   String!
+  name: String!
 }
 
 input AssetInput {
-  id:     ID
-  text:   String
+  id: ID
+  text: String
   symbol: String!
-  name:   String
+  name: String
 }
 
 type AssetPrice {
   timeframe: String!
-  price:     Float!
+  price: Float!
 }
 
 type AssetBalance {
   timeframe: String!
-  balance:   Float!
+  balance: Float!
 }
 
 type AssetValue {
-  id:                       ID! 
-  idBaseAsset:              Int!
-  idQuoteAsset:             Int!
-  interval:                 String!
-  symbol:                   String!
-  openTime:                 String!
-  open:                     Float!
-  high:                     Float!
-  low:                      Float!
-  close:                    Float!
-  volume:                   Float!
-  closeTime:                String!
-  quoteAssetVolume:         Float
-  numberOfTrades:           Float
-  takerBuyBaseAssetVolume:  Float
+  id: ID!
+  idBaseAsset: Int!
+  idQuoteAsset: Int!
+  interval: String!
+  symbol: String!
+  openTime: String!
+  open: Float!
+  high: Float!
+  low: Float!
+  close: Float!
+  volume: Float!
+  closeTime: String!
+  quoteAssetVolume: Float
+  numberOfTrades: Float
+  takerBuyBaseAssetVolume: Float
   takerBuyQuoreAssetVolume: Float
-  baseAsset:                Asset!
-  quoteAsset:               Asset!
+  baseAsset: Asset!
+  quoteAsset: Asset!
 }
 
 input AssetValueInput {
-  id:                       ID
-  idBaseAsset:              Int
-  idQuoteAsset:             Int
-  symbol:                   String!
-  interval:                 String!
-  openTime:                 String!
-  open:                     Float!
-  high:                     Float!
-  low:                      Float!
-  close:                    Float!
-  volume:                   Float!
-  closeTime:                String!
-  quoteAssetVolume:         Float
-  numberOfTrades:           Float
-  takerBuyBaseAssetVolume:  Float
+  id: ID
+  idBaseAsset: Int
+  idQuoteAsset: Int
+  symbol: String!
+  interval: String!
+  openTime: String!
+  open: Float!
+  high: Float!
+  low: Float!
+  close: Float!
+  volume: Float!
+  closeTime: String!
+  quoteAssetVolume: Float
+  numberOfTrades: Float
+  takerBuyBaseAssetVolume: Float
   takerBuyQuoreAssetVolume: Float
-  baseAsset:                AssetInput!
-  quoteAsset:               AssetInput!
+  baseAsset: AssetInput!
+  quoteAsset: AssetInput!
 }
 
 type Bar {
-  openTime:                 String!
-  open:                     Float!
-  high:                     Float!
-  low:                      Float!
-  close:                    Float!
-  volume:                   Float!
-  closeTime:                String!
+  openTime: String!
+  open: Float!
+  high: Float!
+  low: Float!
+  close: Float!
+  volume: Float!
+  closeTime: String!
 }
 
 type BogeTransfer {
-  id:              ID!
-  datetime:        String
-  type:            String
-  bnbAmount:       Float
-  bnbUnitValue:    Float
-  bogeAmount:      Float
-  priceTotal:      Float
-  priceUnit:       Float
-  senderAddress:   String
+  id: ID!
+  datetime: String
+  type: String
+  bnbAmount: Float
+  bnbUnitValue: Float
+  bogeAmount: Float
+  priceTotal: Float
+  priceUnit: Float
+  senderAddress: String
   receiverAddress: String
-  txHash:          String
+  txHash: String
 }
 
 input BogeTransferInput {
-  id:              ID
-  datetime:        String
-  type:            String
-  bnbAmount:       Float
-  bnbUnitValue:    Float
-  bogeAmount:      Float
-  priceTotal:      Float
-  priceUnit:       Float
-  senderAddress:   String
+  id: ID
+  datetime: String
+  type: String
+  bnbAmount: Float
+  bnbUnitValue: Float
+  bogeAmount: Float
+  priceTotal: Float
+  priceUnit: Float
+  senderAddress: String
   receiverAddress: String
-  txHash:          String
+  txHash: String
 }
 
 type BogeWallet {
-  id:           ID!
-  datetime:     String!
-  balance:      Float!
-  name:         String!
-  address:      String!
+  id: ID!
+  datetime: String!
+  balance: Float!
+  name: String!
+  address: String!
 }
 
 input BogeWalletInput {
-  id:           ID
-  datetime:     String!
-  balance:      Float!
-  name:         String!
-  address:      String!
+  id: ID
+  datetime: String!
+  balance: Float!
+  name: String!
+  address: String!
 }
 
 type BogeLiquidity {
-  id:          ID!
-  datetime:    String!
+  id: ID!
+  datetime: String!
   bogeBalance: Float!
-  bnbBalance:  Float!
-  price:       Float!
-  address:     String!
+  bnbBalance: Float!
+  price: Float!
+  address: String!
+}
+
+type BogeLiquidities {
+  id: ID!
+  datetime: String!
+  price: Float!
+  bnbBalance_BOGE_9: Float!
+  bogeBalance_BOGE_9: Float!
+  price_BOGE_9: Float!
+  bnbBalance_V2: Float!
+  bogeBalance_V2: Float!
+  price_V2: Float!
 }
 
 input BogeLiquidityInput {
-  id:          ID!
-  datetime:    String!
+  id: ID!
+  datetime: String!
   bogeBalance: Float!
-  bnbBalance:  Float!
-  price:       Float!
-  address:     String!
+  bnbBalance: Float!
+  price: Float!
+  address: String!
 }
 
 type BinanceWallet {
-  id:           ID!
-  datetime:     String!
-  symbol:       String!
-  balance:      Float!
+  id: ID!
+  datetime: String!
+  symbol: String!
+  balance: Float!
 }

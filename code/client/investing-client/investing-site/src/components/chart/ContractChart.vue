@@ -1,5 +1,8 @@
 <template>
-  <div id="lightweight-chart"></div>
+  <div>
+    <!-- <ContractInfo class="contract-info" :address='"0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"'></ContractInfo> -->
+    <div id="lightweight-chart"></div>
+  </div>
 </template>
 
 <script>
@@ -7,12 +10,16 @@ import $ from "jquery";
 import axios from "axios";
 import { createChart  } from "lightweight-charts";
 import date from 'date-and-time';
+// import ContractInfo from '../info/ContractInfo.vue'
 
 export default {
   name: "ContractChart",
-    props: {
-        type: String
-    },
+  components: {
+    // ContractInfo,
+  },
+  props: {
+      type: String
+  },
   data: function () {
     return {
       chart: {},
@@ -22,7 +29,7 @@ export default {
   },
   created: function () {
     initChart(this);
-    this.intervalID = setInterval(initChart, 60000, this);
+    //this.intervalID = setInterval(initChart, 60000, this);
     window.addEventListener('resize', this.onResize);
   },
   methods: {
@@ -39,12 +46,16 @@ export default {
 };
 
 function initChart(self) {
-    var startDatetime = date.addDays(new Date(), -2);
+    var startDatetime = date.addDays(new Date(), -3);
     // let startDatetime = new Date(2021, 3, 18, 16, 30, 0);
 
     getBogeKlines(startDatetime, null)
         .then(res => {
-            self.klines = res.data.data.getAssetValueRange;
+            self.klines = res.data.data.getLiquidityRange;
+
+            self.klines.forEach(kline => {
+              kline.time = new Date(Number(kline.datetime));
+            })
 
             if (self.type == "candelstick") {
                 self.createCandelstickChart(self);
@@ -62,25 +73,18 @@ async function getBogeKlines(startDatetime, endDatetime) {
     var data = {
         query: `
         mutation {
-            getAssetValueRange(
-                symbol: "BOGE"
-                startDatetime: ${startDatetime}
-                endDatetime: ${endDatetime}
-            ) {
-                symbol
-                interval
-                openTime
-                open
-                high
-                low
-                close
-                volume
-                closeTime
-                numberOfTrades
-            }
+          getLiquidityRange(
+            start: ${startDatetime}
+            end: ${endDatetime}
+          ) {
+            id
+            datetime
+            price
+          }
         }
         `
     }
+    console.log(data.query)
     return axios.post('http://localhost:4000/graphql', data);
 }
 
@@ -150,8 +154,8 @@ function createAreaChart(self) {
     });
 
     self.klines.forEach(kline => {
-        let utcTimestamp = Number(kline.closeTime) / 1000;
-        series.update({ time: utcTimestamp, value: kline.close });
+        let utcTimestamp = Number(kline.datetime) / 1000;
+        series.update({ time: utcTimestamp, value: kline.price });
     });
 
     self.chart.timeScale().fitContent();
@@ -159,8 +163,8 @@ function createAreaChart(self) {
 </script>
 
 <style>
-.legend {
-	position: absolute;
+.contract-info {
+	position: relative;
 	left: 12px;
 	top: 12px;
 	z-index: 1;
