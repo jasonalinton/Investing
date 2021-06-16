@@ -9,9 +9,9 @@ export function toISODate(datetime) {
     return (datetime.toJSON()).split("T")[0];
 }
 
-// function getDateInTimezone(datetime) {
-//     return new Date(datetime.getTime() - datetime.getTimezoneOffset() * 60000);
-// }
+export function getDateInTimezone(datetime) {
+    return new Date(datetime.getTime() - datetime.getTimezoneOffset() * 60000);
+}
 
 export function currency(number) {
     return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' }).format(number);

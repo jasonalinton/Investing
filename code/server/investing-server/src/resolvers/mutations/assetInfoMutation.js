@@ -226,6 +226,10 @@ async function getAssetCandles(parent, args, context, info) {
             orderBy: { openTime: 'desc' },
             take: periodCount
         });
+
+        values.forEach(value => {
+            value.datetime = new Date(value.openTime);
+        })
         return values.reverse();
     }
 

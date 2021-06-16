@@ -91,7 +91,7 @@ class BogeTransferService {
                     ethereum(network: bsc) {
                         transfers(
                             options: {asc: "block.timestamp.time", limit: 1000, offset: ${self.offset}}
-                            date: {after: "${lastSavedTransferTime.toISOString()}", till: null}
+                            date: {since: "${lastSavedTransferTime.toISOString()}", till: null}
                             amount: {gt: 0}
                             currency: {is: "${self.bogeAddress}"}
                         ) {

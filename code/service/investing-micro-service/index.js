@@ -84,3 +84,11 @@ bnbService.start()
     });
 
     
+
+
+
+// const api = require('binance');
+// const binanceWS = new api.BinanceWS(true);
+// binanceWS.onKline('ADAUSD', '1m', data => {
+//     console.log(data);
+// });

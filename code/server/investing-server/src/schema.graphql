@@ -27,7 +27,7 @@ type Mutation {
     endDatetime: String
   ): [BogeTransfer!]
   saveBNBValue(id: Int, bnbAmount: Float): BogeTransfer
-  getWalletBalance(address: String!, datetime: String): BogeWallet
+  getWalletBalance(name: String!, datetime: String): BogeWallet
   addWalletBalance(
     datetime: String!
     balance: Float!

@@ -6,6 +6,7 @@ import { io } from "socket.io-client";
 class PortfolioBalanceService {
     assets = [];
     bogeWallets = [];
+    bnbWallets = [];
 
     constructor(serviceInterval, socketURL) {
         this.init(this);
@@ -46,11 +47,20 @@ class PortfolioBalanceService {
                     let totalValue = 0;
                     self.bogeWallets.forEach(wallet => totalValue += wallet.value);
 
-                    console.log(`Boge portfolio is worth $${currency(totalValue)}`);
+                    console.log(`Boge portfolio's BOGE is worth $${currency(totalValue)}`);
                     return totalValue;
                 });
 
-            Promise.all([ binance_promise, bogePromise ])
+            let bnbPromise = self.getBogePortfolioBNBValues(self)
+                .then(() => {
+                    let totalValue = 0;
+                    self.bnbWallets.forEach(wallet => totalValue += wallet.value);
+
+                    console.log(`Boge portfolio's BNB is worth $${currency(totalValue)}`);
+                    return totalValue;
+                });
+
+            Promise.all([ binance_promise, bogePromise, bnbPromise ])
                 .then(values => {
                     let totalValue = 0;
                     values.forEach(value => totalValue += value);
@@ -71,11 +81,17 @@ class PortfolioBalanceService {
         self.assets = [];
 
         self.bogeWallets = [
-            { name: "Main", address: "0xfd345014ed667bb07eb26345e66addc9e8164b3b", balance: undefined, value: undefined },
-            { name: "Trust", address: "0x003c2f2dbcd1a57c081155c09aa72ba349da3752", balance: undefined, value: undefined }
+            { name: "My Main Wallet", address: "0xfd345014ed667bb07eb26345e66addc9e8164b3b", balance: undefined, value: undefined },
+            { name: "My Trust Wallet", address: "0x003c2f2dbcd1a57c081155c09aa72ba349da3752", balance: undefined, value: undefined }
+        ];
+
+        self.bnbWallets = [
+            { name: "My Main Wallet (BNB)", address: "0xfd345014ed667bb07eb26345e66addc9e8164b3b", balance: undefined, value: undefined },
+            { name: "My Trust Wallet (BNB)", address: "0x003c2f2dbcd1a57c081155c09aa72ba349da3752", balance: undefined, value: undefined }
         ];
     }
 
+    /* Binance */
     async getBinancePortfolioAssets(self) {
         return self.getBinanceBalances()
             .then(res => {
@@ -125,10 +141,6 @@ class PortfolioBalanceService {
         return axios(options);
     }
 
-    async getAssetPrice(symbol) {
-        return axios.get(`https://api.binance.us/api/v3/ticker/price?symbol=${symbol}USD`);
-    }
-
     async getAssetValue(self, symbol, balance) {
         return self.getAssetPrice(symbol)
             .then(res => {
@@ -138,6 +150,11 @@ class PortfolioBalanceService {
             }, logErrors);     
     }
 
+    async getAssetPrice(symbol) {
+        return axios.get(`https://api.binance.us/api/v3/ticker/price?symbol=${symbol}USD`);
+    }
+
+    /* BOGE */
     async getBogePortfolioValues(self) {
         let promises = [];
 
@@ -154,11 +171,21 @@ class PortfolioBalanceService {
         })
     }
 
+    async getBogePrice() {
+        var data = {
+            query: `
+            query {
+                getBogePrice
+            }`
+        }
+        return axios.post('http://localhost:4000/graphql', data);
+    }
+
     async getBogePortfolioWallets(self) {
         let promises = [];
 
         self.bogeWallets.forEach(wallet => {
-            promises.push(self.getWalletBalance(wallet.address));
+            promises.push(self.getWalletBalance(wallet.name));
         });
 
         return Promise.all(promises)
@@ -170,28 +197,51 @@ class PortfolioBalanceService {
         })
     }
 
-    async getBogePrice() {
-        var data = {
-            query: `
-            query {
-                getBogePrice
-            }`
-        }
-        return axios.post('http://localhost:4000/graphql', data);
-    }
-
-    async getWalletBalance(address) {
+    async getWalletBalance(name) {
         var data = {
             query: `
             mutation {
-                getWalletBalance(address: "${address}") {
+                getWalletBalance(name: "${name}") {
                     datetime
                     balance
                 }
             }`
         }
-        console.log(data.query);
+        // console.log(data.query);
         return axios.post('http://localhost:4000/graphql', data);
+    }
+
+    /* BNB */
+    async getBogePortfolioBNBValues(self) {
+        let promises = [];
+
+        promises.push(self.getAssetPrice("BNB"));
+        promises.push(self.getBNBPortfolioWallets(self));
+
+        return Promise.all(promises)
+            .then(value => {
+                let price = Number(value[0].data.price);
+
+                self.bnbWallets.forEach(wallet => {
+                    wallet.value = wallet.balance * price;
+            }, logErrors);
+        })
+    }
+
+    async getBNBPortfolioWallets(self) {
+        let promises = [];
+
+        self.bnbWallets.forEach(wallet => {
+            promises.push(self.getWalletBalance(wallet.name));
+        });
+
+        return Promise.all(promises)
+            .then(wallets => {
+                for (let i = 0; i < wallets.length; i++) {
+                    let wallet = wallets[i].data.data.getWalletBalance;
+                    self.bnbWallets[i].balance = wallet.balance;
+                }
+        })
     }
 }
 

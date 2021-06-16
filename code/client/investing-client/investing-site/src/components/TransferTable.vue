@@ -101,6 +101,7 @@ function initSocket(self) {
         transfer.datetime = new Date(Number(transfer.datetime));
         self.transfers.splice(0, 0, transfer);
     });
+
 }
 
 async function getTransfers(startDatetime, endDatetime) {

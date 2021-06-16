@@ -23,7 +23,7 @@
 import axios from "axios";
 import $ from "jquery";
 import { createChart  } from "lightweight-charts";
-import { toISODate } from '../../service/utility'
+import { toISODate, getDateInTimezone } from '../../service/utility'
 
 export default {
   name: "AssetChart",
@@ -134,7 +134,11 @@ function createCandelstickChart(self) {
   });
 
   self.data.forEach(bar => {
-    let time = Number(bar.openTime) / 1000;
+    let date1 = new Date(Number(bar.openTime));
+    let date2 = getDateInTimezone(date1);
+    let time = date2.getTime() / 1000;
+    //console.log(date2);
+    //let time = Number(bar.openTime) / 1000;
     //let time = toISODate(new Date(Number(bar.openTime)));
     series.update({ time, open: bar.open, high: bar.high, low: bar.low, close: bar.close });
   });

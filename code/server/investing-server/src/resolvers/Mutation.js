@@ -402,7 +402,7 @@ async function getWalletBalance(parent, args, context, info) {
         bogeWallet = await context.prisma.bogeWallet.findFirst({
             where: {
                 AND: [
-                    { address: args.address },
+                    { name: args.name },
                     { datetime: { lte: new Date(args.datetime) } }
                 ]
             },
@@ -412,19 +412,19 @@ async function getWalletBalance(parent, args, context, info) {
         if (!bogeWallet) {
             // If datetime is before saved record, return the earliest record
             bogeWallet = await context.prisma.bogeWallet.findFirst({
-                where: { address: args.address },
+                where: { name: args.name },
                 orderBy: { datetime: "asc" },
             });
         }
         
     } else {
         bogeWallet = await context.prisma.bogeWallet.findFirst({
-            where: { address: args.address },
+            where: { name: args.name },
             orderBy: { datetime: "desc" },
         });
     }
 
-    console.log(`Got wallet balance for ${args.address}:  ${bogeWallet.balance.toFixed(2)} BOGE`);
+    console.log(`Got wallet balance for ${args.name}:  ${bogeWallet.balance.toFixed(2)}`);
     return bogeWallet;
 }
 
