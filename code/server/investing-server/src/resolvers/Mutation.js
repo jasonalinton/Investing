@@ -1,60 +1,40 @@
-// const moment = require('moment-timezone');
-
 async function addAssetValue(parent, args, context, info) {
     let assetValue = args.assetValue;
-    var av = await context.prisma.assetValue.create({
-        data: {
-            symbol: assetValue.symbol,
-            interval: assetValue.interval,
-            openTime: assetValue.openTime,
-            open: parseFloat(assetValue.open),
-            high: parseFloat(assetValue.high),
-            low: parseFloat(assetValue.low),
-            close: parseFloat(assetValue.close),
-            volume: parseFloat(assetValue.volume),
-            closeTime: assetValue.closeTime,
-            quoteAssetVolume: parseFloat(assetValue.quoteAssetVolume),
-            numberOfTrades: parseFloat(assetValue.numberOfTrades),
-            takerBuyBaseAssetVolume: parseFloat(assetValue.takerBuyBaseAssetVolume),
-            takerBuyQuoreAssetVolume: parseFloat(assetValue.takerBuyQuoreAssetVolume),
-            baseAsset: {
-                connect: { symbol: assetValue.baseAsset.symbol }
-            },
-            quoteAsset: {
-                connect: { symbol: assetValue.quoteAsset.symbol }
+    let data = {
+        symbol: assetValue.symbol,
+        interval: assetValue.interval,
+        openTime: assetValue.openTime,
+        open: parseFloat(assetValue.open),
+        high: parseFloat(assetValue.high),
+        low: parseFloat(assetValue.low),
+        close: parseFloat(assetValue.close),
+        volume: parseFloat(assetValue.volume),
+        closeTime: assetValue.closeTime,
+        quoteAssetVolume: parseFloat(assetValue.quoteAssetVolume),
+        numberOfTrades: parseFloat(assetValue.numberOfTrades),
+        takerBuyBaseAssetVolume: parseFloat(assetValue.takerBuyBaseAssetVolume),
+        takerBuyQuoteAssetVolume: parseFloat(assetValue.takerBuyQuoteAssetVolume),
+        baseAsset: {
+            connect: { symbol: assetValue.baseAsset.symbol }
+        },
+        quoteAsset: {
+            connect: { symbol: assetValue.quoteAsset.symbol }
+        }
+    };
+
+    let av = await context.prisma.assetBar.upsert({
+        create: data,
+        update: data,
+        where: {
+            symbol_interval_openTime: {
+                symbol: assetValue.symbol,
+                interval: assetValue.interval,
+                openTime: assetValue.openTime
             }
         },
-        select: {
-            id: true,
-            idBaseAsset: true,
-            idQuoteAsset: true,
-            symbol: true,
-            interval: true,
-            openTime: true,
-            open: true,
-            high: true,
-            low: true,
-            close: true,
-            volume: true,
-            closeTime: true,
-            quoteAssetVolume: true,
-            numberOfTrades: true,
-            takerBuyBaseAssetVolume: true,
-            takerBuyQuoreAssetVolume: true,
-            quoteAsset: {
-                select: {
-                    id: true,
-                    symbol: true,
-                    name: true
-                }
-            },
-            baseAsset: {
-                select: {
-                    id: true,
-                    symbol: true,
-                    name: true
-                }
-            }
+        include: {
+            quoteAsset: true,
+            baseAsset: true
         },
     });
     console.log(`Added ${av.baseAsset.symbol} AssetValue-${av.interval}: ${formatDate(av.openTime)} - $${av.open}`);
@@ -143,7 +123,7 @@ async function getAssetValue(parent, args, context, info) {
     var datetime = new Date(args.datetime);
     var dateString = `${datetime.getUTCFullYear()}/${datetime.getUTCMonth() + 1}/${datetime.getUTCDate()}`;
     
-    let assetValue = await context.prisma.assetValue.findFirst({
+    let assetValue = await context.prisma.assetBar.findFirst({
         where: {
             symbol: args.symbol,
             openTime: {
@@ -162,7 +142,7 @@ async function getAssetValues(parent, args, context, info) {
     console.log("     ")
     //var date = moment(args.input.attemptedDateTime).parseZone().format();
 
-    return await context.prisma.assetValue.findMany({
+    return await context.prisma.assetBar.findMany({
         where: {
             symbol: args.symbol,
             openTime: {
@@ -188,21 +168,21 @@ async function getAssetValueRange(parent, args, context, info) {
 }
 
 async function getLastSavedTime(parent, args, context, info) {
-    let assetValue = await context.prisma.assetValue.findFirst({
-        select: { closeTime: true },
+    let assetValue = await context.prisma.assetBar.findFirst({
+        select: { openTime: true },
         where: {
             AND: [
                 { symbol: args.symbol },
                 { interval: args.interval }
             ]
         },
-        orderBy: { closeTime: "desc" }
+        orderBy: { openTime: "desc" }
     })
 
     console.log(assetValue);
     let lastTime = (args.symbol == "BOGE") ? new Date(2021, 3, 18, 16, 30, 0) : new Date(2021, 0, 1);
     if (assetValue) {
-        lastTime = new Date(assetValue.closeTime);
+        lastTime = new Date(assetValue.openTime);
     }
     console.log(`${args.symbol} history last saved on ${formatDate(lastTime)} for ${args.interval} interval`);
     return lastTime.toJSON();

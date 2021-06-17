@@ -1,4 +1,6 @@
 import axios from "axios";
+import date from 'date-and-time';
+import { logErrors } from '../utility'
 
 class AssetValueService {
     intervalID;
@@ -30,12 +32,12 @@ class AssetValueService {
         this.serviceInterval = serviceInterval;
         this.barIntervals = (barIntervals) ? barIntervals : this.barIntervals;
     }
-
+    
     async start() {
         this.intervalID = setInterval(this.run, this.serviceInterval, this);
         return this.run(this);
     }
-
+    
     async restart() {
         clearInterval(this.intervalID);
         return this.start();
@@ -55,33 +57,21 @@ class AssetValueService {
                 promises.push(self.processAssetValues(self, barInterval));
             });
 
-            Promise.allSettled(promises)
+            return Promise.allSettled(promises)
                 .then(() => { self.processing = false })
                 .catch((error) => {
-                    if (error.response.data.errors) {
-                        error.response.data.errors.forEach(err => console.log(err));
-                    } else {
-                        console.log(error);
-                    }
+                    logErrors(error);
                     self.processing = false;
                 });
-
         }
     }
 
     async processAssetValues(self, barInterval) {
-        return new Promise((resolve) => {
-            self.getLastSavedTime(self.symbol, barInterval)
-                .then(response => self.getAssetHistory_Priomise(self, barInterval, response), logErrors)
-                .then(response => self.saveAssetHistory_Promise(self, response, barInterval), logErrors)
-                .then(() => resolve(), logErrors)
-                .catch((error) => {
-                    if (error.response.data.errors)
-                        error.response.data.errors.forEach(err => console.log(err));
-                    else
-                        console.log(error);
-                });
-        });
+        return self.getLastSavedTime(self.symbol, barInterval)
+            .then(lastSavedTime => self.getAssetHistory(self, barInterval, lastSavedTime), logErrors)
+            // .then(res => self.updateLastSavedValues(res.lastSavedTime, res.bars), logErrors)
+            .then(bars => self.saveAssetHistory(self, bars, barInterval), logErrors)
+            .catch(logErrors);
     }
 
     async getLastSavedTime(symbol, interval) {
@@ -91,28 +81,88 @@ class AssetValueService {
                 getLastSavedTime(symbol: "${symbol}", interval: "${interval}")
             }`
         }
-        return axios.post('http://localhost:4000/graphql', data);
+        return axios.post('http://localhost:4000/graphql', data)
+            .then(response => response.data.data.getLastSavedTime, logErrors);
     }
 
-    async getAssetHistory_Priomise(self, barInterval, response) {
-        return new Promise((resolve) => {
-            let lastSavedTime = new Date(response.data.data.getLastSavedTime);
-            console.log(`${self.symbol} history last saved on ${formatDate(lastSavedTime)} for ${barInterval} interval`);
+    async getAssetHistory(self, barInterval, lastSavedTime, bars) {
+        if (!bars) {
+            if (barInterval == '1m') {
+                lastSavedTime = date.addMinutes(new Date(lastSavedTime), -1);
+            } else if (barInterval == '1h') {
+                lastSavedTime = date.addHours(new Date(lastSavedTime), -1);
+            } else if (barInterval == '1d') {
+                lastSavedTime = date.addDays(new Date(lastSavedTime), -1);
+            }
+            bars = [];
+        }
 
-            self.bars[barInterval] = [];
-            self.getAssetHistory(self, barInterval, lastSavedTime, resolve);  
+        return axios.get(`https://api.binance.us/api/v3/klines?symbol=${self.symbol}USD&limit=${self.responseLimit}&interval=${barInterval}&startTime=${lastSavedTime.getTime()}`)
+            .then(response => {
+                bars = self.createBars(response.data, bars);
+
+                if (response.data.length > 0 && response.data.length % self.responseLimit == 0) {
+                    console.log(`${bars.length} ${self.symbol} records queried so far for ${barInterval} interval`);
+                    let lastCloseDate = new Date(bars[bars.length - 1].closeTime);
+                    return self.getAssetHistory(self, barInterval, lastCloseDate, bars);
+                } else {
+                    console.log(`${bars.length} total ${self.symbol} records queried for ${barInterval} interval`);
+                    return bars;
+                }
+            }, logErrors);
+    }
+
+    async updateLastSavedValues(lastSavedTime, bars) {
+        let oldBars = []
+        let newBars = [];
+
+        bars.forEach(bar => {
+            if (bar.openTime.getTime() <= lastSavedTime.getTime())
+                oldBars.push(bar);
+            else
+                newBars.push(bar);
         });
-    }
 
-    getAssetHistory(self, barInterval, lastSavedTime, resolve) {
-        axios.get(`https://api.binance.us/api/v3/klines?symbol=${self.symbol}USD&limit=${self.responseLimit}&interval=${barInterval}&startTime=${lastSavedTime.getTime()}`)
-            .then(response => self.requestAssetHistory_Resolved(self, barInterval, response, resolve));
+
     }
     
-    requestAssetHistory_Resolved(self, barInterval, response, resolve) {
-        let bars = self.bars[barInterval];
-        response.data.forEach(bar => {
-            var bar_New = {
+    async updateBar(bar) {
+        var data = {
+            query: 
+            `mutation {
+                updateAssetValue(
+                    assetValue:
+                        {
+                            symbol:"${self.symbol}"
+                            interval: "${barInterval}"
+                            openTime: "${bar.openTime}"
+                            open: ${bar.open}
+                            high: ${bar.high}
+                            low: ${bar.low}
+                            close: ${bar.close}
+                            volume: ${bar.volume}
+                            closeTime: "${bar.closeTime}"
+                            quoteAssetVolume: ${bar.quoteAssetVolume}
+                            numberOfTrades: ${bar.numberOfTrades}
+                            takerBuyBaseAssetVolume: ${bar.takerBuyBaseAssetVolume}
+                            takerBuyQuoteAssetVolume: ${bar.takerBuyQuoteAssetVolume}
+                            baseAsset: { symbol: "${self.symbol}" }
+                            quoteAsset: { symbol: "USD" }
+                        }
+                ) {
+                    id
+                    symbol
+                    openTime
+                }
+            }
+        `
+        }
+        return axios.post('http://localhost:4000/graphql', data);
+    }
+    
+    createBars(responseDate, bars) {
+        responseDate.forEach(bar => {
+            let bar_New = {
                 time: new Date(bar[0]).toJSON(),
                 value: Number(bar[1]),
                 openTime: new Date(bar[0]).toJSON(),
@@ -125,40 +175,23 @@ class AssetValueService {
                 quoteAssetVolume: Number(bar[7]),
                 numberOfTrades: Number(bar[8]),
                 takerBuyBaseAssetVolume: Number(bar[9]),
-                takerBuyQuoreAssetVolume: Number(bar[10])
+                takerBuyQuoteAssetVolume: Number(bar[10])
             };
             bars.push(bar_New);
         });
-
-        console.log(`${bars.length} ${self.symbol} records queried for ${barInterval} interval`);
-
-        if (bars.length > 0 && bars.length % self.responseLimit == 0) {
-            var lastCloseDate = new Date(bars[bars.length - 1].closeTime);
-            self.getAssetHistory(self, barInterval, lastCloseDate, resolve);
-        } else {
-            resolve(bars); return;
-        }
+        return bars;
     }
 
-    saveAssetHistory_Promise(self, bars, barInterval) {
-        return new Promise(resolve => {
-            self.saveAssetHistory(self, bars, barInterval, resolve);
-        });
-    }
+    async saveAssetHistory(self, bars, barInterval) {
+        if (bars.length == 0) return;
+        let bar = bars.shift();
 
-    saveAssetHistory(self, bars, barInterval, resolve) {
-        if (bars.length == 0) {
-            resolve(); return;
-        }
-
-        var bar = bars.shift();
-        self.saveBNBbar(self, bar, barInterval)
+        return self.saveBNBbar(self, bar, barInterval)
             .then(() => {
-                if (bars.length > 0) {
-                    self.saveAssetHistory(self, bars, barInterval, resolve);
-                } else {
-                    resolve();
-                }
+                if (bars.length > 0)
+                    return self.saveAssetHistory(self, bars, barInterval);
+                else
+                    return;
             });
     }
     
@@ -181,7 +214,7 @@ class AssetValueService {
                             quoteAssetVolume: ${bar.quoteAssetVolume}
                             numberOfTrades: ${bar.numberOfTrades}
                             takerBuyBaseAssetVolume: ${bar.takerBuyBaseAssetVolume}
-                            takerBuyQuoreAssetVolume: ${bar.takerBuyQuoreAssetVolume}
+                            takerBuyQuoteAssetVolume: ${bar.takerBuyQuoteAssetVolume}
                             baseAsset: { symbol: "${self.symbol}" }
                             quoteAsset: { symbol: "USD" }
                         }
@@ -195,12 +228,6 @@ class AssetValueService {
         }
         return axios.post('http://localhost:4000/graphql', data);
     }
-}
-
-function logErrors(err) {
-    err.response.data.errors.forEach(error => {
-        console.error(error.message);
-    })
 }
 
 function formatDate(date) {

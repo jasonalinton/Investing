@@ -12,7 +12,7 @@ async function getAssetName(parent, args, context, info) {
 }
 
 async function getAssetPrice_Now(parent, args, context, info) {
-    let assetValue = await context.prisma.assetValue.findFirst({
+    let assetValue = await context.prisma.assetBar.findFirst({
         where: { symbol: args.symbol },
         orderBy: { openTime: 'desc' }
     });
@@ -34,7 +34,7 @@ async function getAssetPrice_Hour(parent, args, context, info) {
     let now = new Date((new Date()).setSeconds(0));
     let hourAgo = date.addHours(now, -1);
     
-    let assetValue = await context.prisma.assetValue.findFirst({
+    let assetValue = await context.prisma.assetBar.findFirst({
         where: { 
             AND: [
                 { symbol: args.symbol },
@@ -57,7 +57,7 @@ async function getAssetPrice_Day(parent, args, context, info) {
     let now = new Date((new Date()).setSeconds(0));
     let dayAgo = date.addDays(now, -1);
     
-    let assetValue = await context.prisma.assetValue.findFirst({
+    let assetValue = await context.prisma.assetBar.findFirst({
         where: { 
             AND: [
                 { symbol: args.symbol },
@@ -80,7 +80,7 @@ async function getAssetPrice_Week(parent, args, context, info) {
     let now = new Date((new Date()).setSeconds(0));
     let weekAgo = date.addDays(now, -7);
     
-    let assetValue = await context.prisma.assetValue.findFirst({
+    let assetValue = await context.prisma.assetBar.findFirst({
         where: { 
             AND: [
                 { symbol: args.symbol },
@@ -103,7 +103,7 @@ async function getAssetPrice_Month(parent, args, context, info) {
     let now = new Date((new Date()).setSeconds(0));
     let monthAgo = date.addMonths(now, -1);
     
-    let assetValue = await context.prisma.assetValue.findFirst({
+    let assetValue = await context.prisma.assetBar.findFirst({
         where: { 
             AND: [
                 { symbol: args.symbol },
@@ -216,7 +216,7 @@ async function getAssetCandles(parent, args, context, info) {
 
 
     if (['1m', '1h', '1d'].includes(args.interval)) {
-        let values = await context.prisma.assetValue.findMany({
+        let values = await context.prisma.assetBar.findMany({
             where: {
                 AND: [
                     { symbol: args.symbol },
@@ -274,7 +274,7 @@ async function getAssetCandles(parent, args, context, info) {
 
     let promises = [];
     for (let i = 0; i < chunkCount; i++) {
-        promise = context.prisma.assetValue.findMany({
+        promise = context.prisma.assetBar.findMany({
             where: {
                 AND: [
                     { symbol: args.symbol },

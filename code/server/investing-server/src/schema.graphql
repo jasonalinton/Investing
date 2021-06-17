@@ -6,7 +6,7 @@ type Query {
 }
 
 type Mutation {
-  addAssetValue(assetValue: AssetValueInput): AssetValue!
+  addAssetValue(assetValue: AssetValueInput): AssetBar!
   addAssetValues(assetValues: [AssetValueInput]): [AssetValue!]!
   addTransfer(transfer: BogeTransferInput): BogeTransfer!
   getLastSavedTime(symbol: String!, interval: String!): String!
@@ -85,8 +85,8 @@ type AssetValue {
   id: ID!
   idBaseAsset: Int!
   idQuoteAsset: Int!
-  interval: String!
   symbol: String!
+  interval: String!
   openTime: String!
   open: Float!
   high: Float!
@@ -98,6 +98,27 @@ type AssetValue {
   numberOfTrades: Float
   takerBuyBaseAssetVolume: Float
   takerBuyQuoreAssetVolume: Float
+  baseAsset: Asset!
+  quoteAsset: Asset!
+}
+
+type AssetBar {
+  id: ID!
+  idBaseAsset: Int!
+  idQuoteAsset: Int!
+  symbol: String!
+  interval: String!
+  openTime: String!
+  open: Float!
+  high: Float!
+  low: Float!
+  close: Float!
+  volume: Float!
+  closeTime: String!
+  quoteAssetVolume: Float
+  numberOfTrades: Float
+  takerBuyBaseAssetVolume: Float
+  takerBuyQuoteAssetVolume: Float
   baseAsset: Asset!
   quoteAsset: Asset!
 }
@@ -118,7 +139,7 @@ input AssetValueInput {
   quoteAssetVolume: Float
   numberOfTrades: Float
   takerBuyBaseAssetVolume: Float
-  takerBuyQuoreAssetVolume: Float
+  takerBuyQuoteAssetVolume: Float
   baseAsset: AssetInput!
   quoteAsset: AssetInput!
 }
