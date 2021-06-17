@@ -7,9 +7,8 @@ const io = require('socket.io')(server, {
       }
 });
 const port = 3050;
-import BNBService from './service/bnbService.js';
+
 import BogeTransferService from './service/boge/bogeTransferService';
-import BogeHistoryService from './service/boge/bogeHistoryService';
 import BogeWalletService from './service/boge/bogeWalletService'
 import BogeLiquidityService from './service/boge/bogeLiquidityService';
 import AssetValueService from './service/binance/assetValueService';
@@ -54,24 +53,17 @@ binanceWalletService.start();
 const assetListService = new AssetListService(60000, "http://localhost:3050");
 assetListService.start();
 
-
-const assets = [ 'ADA', 'BTC', 'ETH', 'DOGE', 'MATIC', 'ONE', 'XRP' ];
+let promises = []
+const assets = [ 'ADA', 'BNB', 'BTC', 'ETH', 'DOGE', 'MATIC', 'ONE', 'XRP' ];
 const intervals = [ '1m', '1h', '1d' ]
 assets.forEach(asset => {
     const assetValueService = new AssetValueService(asset, intervals, 60000);
-    assetValueService.start();
+    promises.push(assetValueService.start());
 });
-
-
-const bnbService = new BNBService(60000);
-bnbService.start()
+Promise.allSettled(promises)
     .then(() => {
         const bogeTransferService = new BogeTransferService(20000, "http://localhost:3050"); // Every 20 seconds
         return bogeTransferService.start();
-    })
-    .then(() => {
-        const bogeHistoryService = new BogeHistoryService(900000); // Every 15 minutes
-        return bogeHistoryService.start();
     })
     .then(() => {
         // Running these services at the same time could cause too many requests being sent to BSCScan at one time

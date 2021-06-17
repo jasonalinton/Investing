@@ -3,7 +3,7 @@ node_modules
 /dist
 
 # database files
-.db
+*.db
 
 # local env files
 .env
@@ -27,3 +27,4 @@ pnpm-debug.log*
 server/investing-server/prisma/dev.db
 code/server/investing-server/prisma/dev.db
 code/service/data-service/binance-trade-data-service/prisma/dev.db
+code/server/investing-server/prisma/dev copy.db
