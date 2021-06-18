@@ -7,6 +7,7 @@
     <!-- Numbers -->
     <div class="numbers d-flex flex-column">
         <div class="price">${{ price.toFixed(2) }}</div>
+        <div class="price">${{ getBogePrice1.toFixed(2) }}</div>
         <div v-if="timeframe" class="d-flex flex-row">
         <span class="change">
             {{ timeframe.change.price.toFixed(2) }} / {{ timeframe.change.percent.toFixed(1) }}%
@@ -21,34 +22,41 @@
 <script>
 import axios from "axios";
 import date from 'date-and-time';
+import gql from 'graphql-tag';
 
 export default {
   name: "ContractInfo",
-    props: {
-        address: String,
-    },
-    data: function () {
-        return {
-            price: 0,
-            timeframe: null,
-            timeframes: [
-            { text: "24hrs", getDate: dayAgo, balance: null, change: { balance: null, percent: null } },
-            { text: "1w", getDate: weekAgo, balance: null, change: { balance: null, percent: null } },
-            { text: "1m", getDate: monthAgo, balance: null, change: { balance: null, percent: null } },
-            { text: "1hr", getDate: hourAgo, balance: null, change: { balance: null, percent: null } },
-            ],
-        };
-    },
-    created: function() {
-        const self = this;
-        setContractPrice(self);
-        setInterval(setContractPrice, 60000, self);
-    },
-    methods: {
-      onContractClicked: function() {
-          this.$emit('onContractClicked');
-      }
+  props: {
+    address: String,
+  },
+  apollo: {
+    getBogePrice1: gql`query {
+      getBogePrice1
+    }`
+  },
+  data: function () {
+      return {
+          getBogePrice1: '',
+          price: 0,
+          timeframe: null,
+          timeframes: [
+          { text: "24hrs", getDate: dayAgo, balance: null, change: { balance: null, percent: null } },
+          { text: "1w", getDate: weekAgo, balance: null, change: { balance: null, percent: null } },
+          { text: "1m", getDate: monthAgo, balance: null, change: { balance: null, percent: null } },
+          { text: "1hr", getDate: hourAgo, balance: null, change: { balance: null, percent: null } },
+          ],
+      };
+  },
+  created: function() {
+      const self = this;
+      setContractPrice(self);
+      setInterval(setContractPrice, 60000, self);
+  },
+  methods: {
+    onContractClicked: function() {
+        this.$emit('onContractClicked');
     }
+  }
 };
 
 function setContractPrice(self) {

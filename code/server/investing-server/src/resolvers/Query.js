@@ -37,10 +37,22 @@ async function getBogePrice(parent, args, context, info) {
     console.log(`Retrieved BOGE price: $${bogeLiquidity.price.toFixed(2)}`);
     return bogeLiquidity.price;
 }
+
+// NOT IDEAL: This can return the wrong values if there is a gap in the saved liquidity times 
+// or if liquidity wasn't saved for an address
+async function getBogePrice1(parent, args, context, info) {
+    var bogeLiquidity = await context.prisma.bogeLiquidities.findFirst({
+        orderBy: { datetime: "desc" },
+    });
+    
+    console.log(`Retrieved BOGE price: $${bogeLiquidity.price.toFixed(2)}`);
+    return bogeLiquidity.price;
+}
   
 module.exports = {
     assetValues,
     bogeTransfers,
     getLastSavedTransferTime,
-    getBogePrice
+    getBogePrice,
+    getBogePrice1,
 }

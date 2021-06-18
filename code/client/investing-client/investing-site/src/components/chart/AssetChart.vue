@@ -20,57 +20,62 @@
 </template>
 
 <script>
-import axios from "axios";
 import $ from "jquery";
 import { createChart  } from "lightweight-charts";
 import { toISODate, getDateInTimezone } from '../../service/utility'
+import gql from 'graphql-tag'
 
 export default {
   name: "AssetChart",
-    props: {
-        asset: Object,
-        type: String,
-    },
+  props: {
+      asset: Object,
+      type: String,
+  },
   data: function () {
     return {
+      config: {
+        interval: '4h',
+        periods: 220
+      },
       chart: {},
       height: 500,
       data: {},
-      intervals: [ '1m', '3m', '5m', '15m', '30m', '1h', '2h','4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M' ]
+      intervals: [ '1m', '3m', '5m', '15m', '30m', 
+                   '1h', '2h','4h', '6h', '8h', '12h',
+                   '1d', '3d', '1w', '1M' ],
     };
   },
   created: function () {
-      let self = this;
-      this.getBars(this.asset.symbol)
-        .then(res => {
-            self.data = res.data.data.getAssetCandles;
-        })
-        .then(() => { self.initChart(self) })
-    ;
-
+    this.bars(this.asset.symbol, this.config.intervals, this.config.periods);
+    
     window.addEventListener('resize', this.onResize);
   },
   methods: {
     initChart: initChart,
     createCandelstickChart: createCandelstickChart,
     createAreaChart: createAreaChart,
-    getBars: async (symbol, interval) => {
-        interval = interval ?? '1h';
-        var data = {
-            query: `
-            mutation {
-                getAssetCandles(symbol: "${symbol}", interval: "${interval}", periods: 180) {
-                    openTime
-                    open
-                    high
-                    low
-                    volume
-                    close
-                }
+    bars(symbol, interval, periods) {
+      let self = this;
+      this.$apollo.mutate({
+        mutation: gql`mutation ($symbol: String!, $interval: String, $periods: Int) {
+            bars(symbol: $symbol, interval: $interval, periods: $periods) {
+                openTime
+                open
+                high
+                low
+                volume
+                close
             }
-            `
+        }`,
+        variables: { symbol, interval, periods },
+        update: (cache, { data: { bars }}) => {
+          self.bars = bars;
+          self.initChart(self);
         }
-        return axios.post('http://localhost:4000/graphql', data);
+      })
+    },
+    refreshChart() {
+      this.bars(this.asset.symbol, this.intervals, this.periods);
     },
     onResize() {
         this.chart.resize(this.width(), this.height);
@@ -79,16 +84,6 @@ export default {
       return $(window).width() - 20;
     },
     toISODate,
-    refreshChart: function(symbol, interval) {
-      let self = this;
-      self.getBars(self.asset.symbol, interval)
-        .then(res => {
-            self.data = res.data.data.getAssetCandles;
-        })
-        .then(() => { self.initChart(self) })
-    ;
-
-    }
   },
 };
 
@@ -133,7 +128,7 @@ function createCandelstickChart(self) {
     }
   });
 
-  self.data.forEach(bar => {
+  self.bars.forEach(bar => {
     let date1 = new Date(Number(bar.openTime));
     let date2 = getDateInTimezone(date1);
     let time = date2.getTime() / 1000;

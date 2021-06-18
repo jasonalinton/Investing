@@ -3,6 +3,7 @@ type Query {
   bogeTransfers: [BogeTransfer!]!
   getLastSavedTransferTime: String!
   getBogePrice: Float!
+  getBogePrice1: Float!
 }
 
 type Mutation {
@@ -50,6 +51,7 @@ type Mutation {
   getAssetPrices(symbol: String): [AssetPrice!]!
   getAssetBalances(symbol: String): [AssetBalance!]!
   getAssetCandles(symbol: String!, interval: String, periods: Int): [Bar!]!
+  bars(symbol: String!, interval: String, periods: Int): [Bar!]!
   saveBinanceWalletBalance(
     symbol: String!
     datetime: String!
