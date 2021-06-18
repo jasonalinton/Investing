@@ -17,14 +17,21 @@ export default {
       address: String,
   },
   apollo: {
-    portfolioBalance: gql`query {
-      portfolioBalance {
-        total
-        binance
-        boge
-        bnb
-      }
-    }`
+    portfolioBalance: {
+        query: gql`query portfolioBalance {
+        portfolioBalance {
+          total
+          binance
+          boge
+          bnb
+        }
+      }`,
+      update: data => {
+        document.title = `Investing ${currency(data.portfolioBalance.total)}`;
+        return data.portfolioBalance;
+      },
+      pollInterval: 30000
+    }
   },
   data: function () {
     return {

@@ -1,0 +1,8 @@
+query portfolioBalance {
+  portfolioBalance {
+    total
+    binance
+    boge
+    bnb
+  }
+}

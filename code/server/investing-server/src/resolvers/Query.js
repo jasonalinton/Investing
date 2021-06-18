@@ -40,7 +40,7 @@ async function getBogePrice(parent, args, context, info) {
 
 // NOT IDEAL: This can return the wrong values if there is a gap in the saved liquidity times 
 // or if liquidity wasn't saved for an address
-async function getBogePrice1(parent, args, context, info) {
+async function bogePrice(parent, args, context, info) {
     var bogeLiquidity = await context.prisma.bogeLiquidities.findFirst({
         orderBy: { datetime: "desc" },
     });
@@ -54,5 +54,5 @@ module.exports = {
     bogeTransfers,
     getLastSavedTransferTime,
     getBogePrice,
-    getBogePrice1,
+    bogePrice,
 }

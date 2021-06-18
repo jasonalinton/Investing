@@ -9,10 +9,12 @@ const MutationFile = require('./resolvers/Mutation')
 const BogeLiquidityMutation = require('./resolvers/mutations/bogeLiquidityMutation')
 const AssetInfoMutation = require('./resolvers/mutations/assetInfoMutation')
 const PortfolioQuery = require('./resolvers/queries/portfolioQuery')
+const AssetListQuery = require('./resolvers/queries/assetListQuery')
 
 const Query = {
   ...QueryFile,
-  ...PortfolioQuery
+  ...PortfolioQuery,
+  ...AssetListQuery
 }
 
 const Mutation = {

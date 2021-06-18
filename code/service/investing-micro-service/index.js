@@ -44,14 +44,8 @@ io.on('connection', (socket) => {
     });
 });
 
-const portfolioBalanceService = new PortfolioBalanceService(60000, "http://localhost:3050");
-portfolioBalanceService.start();
-
 const binanceWalletService = new BinanceWalletService(3600000);
 binanceWalletService.start();
-
-const assetListService = new AssetListService(60000, "http://localhost:3050");
-assetListService.start();
 
 let promises = []
 const assets = [ 'ADA', 'BNB', 'BTC', 'ETH', 'DOGE', 'MATIC', 'ONE', 'XRP' ];

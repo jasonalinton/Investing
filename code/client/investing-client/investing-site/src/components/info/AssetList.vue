@@ -6,32 +6,59 @@
 
 <script>
 import AssetInfo from "./AssetInfo.vue";
-import { io } from "socket.io-client";
-
+import gql from 'graphql-tag';
+0
 export default {
   name: "AssetList",
   components: {
     AssetInfo
+  },
+  apollo: {
+    assets: {
+      query: gql`query assets {
+        assets {
+          name
+          symbol
+          balance
+          balances {
+            balance
+            timeframe
+          }
+          price
+          prices {
+            price
+            timeframe
+          }
+          timeframes {
+            balance
+            change {
+              balance
+              balancePercent
+              value
+              valuePercent
+            }
+            price
+            timeframe
+            value
+          }
+          value
+        }
+      }`,
+      update: data => {
+        data.assets.forEach(asset => {
+            asset.timeframe = asset.timeframes[2];
+        });
+        return data.assets;
+      },
+      pollInterval: 30000
+    }
   },
   data: function () {
     return {
       assets: null
     };
   },
-  created: function () {
-      this.initSocket(this);
-  },
   methods: {
-    initSocket: (self) => {
-        self.socket = io("http://localhost:3050");
-        self.socket.on('asset-list', (assetList) => {
-            assetList.forEach(asset => {
-                asset.timeframe = asset.timeframes[2];
-            });
-
-            self.assets = assetList;
-        });
-    },
     onAssetClicked: function(asset) {
         this.$emit('onAssetClicked', asset);
     }

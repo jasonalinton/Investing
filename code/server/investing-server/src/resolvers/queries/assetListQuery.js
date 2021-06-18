@@ -1,14 +1,17 @@
-import axios from "axios";
-import HmacSHA256 from 'crypto-js/hmac-sha256';
-import Hex from 'crypto-js/enc-hex';
-import { io } from "socket.io-client";
+const axios = require('axios');
+const HmacSHA256 = require('crypto-js/hmac-sha256');
+const Hex = require('crypto-js/enc-hex');
+const { logErrors } = require('../../utility');
 
 require('dotenv').config();
 
+async function assets(parent, args, context, info) {
+    let assetListService = new AssetListService();
+    return await assetListService.getAssetList();
+}
+
 class AssetListService {
-    constructor(serviceInterval, socketURL) {
-        this.serviceInterval = serviceInterval;
-        this.socket = io(socketURL);
+    constructor() {
         this.assets = [];
         this.followedAssets = [
             'ADA',
@@ -22,24 +25,9 @@ class AssetListService {
         ];
     }
 
-    start() {
-        this.intervalID = setInterval(this.run, this.serviceInterval, this);
-        return this.run(this);
-    }
-
-    restart() {
-        clearInterval(this.intervalID);
-        this.start();
-    }
-
-    stop() {
-        clearInterval(this.intervalID);
-        this.intervalID = null;
-    }
-
-    run(self) {
-        if (!self.processing) {
-            self.getBinanceBalances()
+    async getAssetList() {
+        let self = this;
+        return self.getBinanceBalances()
             .then(res => {
                 let promises = [];
 
@@ -54,20 +42,11 @@ class AssetListService {
 
                 return Promise.all(promises);
             }, logErrors)
-            .then(
-                () => {
+            .then(() => {
                     self.calculateChanges(self);
-
-                    self.socket.emit('emit-asset-list', self.assets);
-                    self.refresh(self)
-                },
-                () => self.refresh(self))
-            .catch(error => {
-                logErrors(error);
-                self.refresh(self);
-            });
-        }
-        
+                    return self.assets;
+                }, logErrors)
+            .catch(logErrors);
     }
 
     async getBinanceBalances() {
@@ -195,17 +174,8 @@ class AssetListService {
             });
         });
     }
-    
-    refresh(self) {
-        self.assets = []
-        self.process = false;
-    }
 }
 
-function logErrors(err) {
-    err.response.data.errors.forEach(error => {
-        console.error(error.message);
-    })
+module.exports = {
+    assets
 }
-
-export default AssetListService;

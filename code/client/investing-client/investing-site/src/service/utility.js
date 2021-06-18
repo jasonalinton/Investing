@@ -21,3 +21,6 @@ export function formatDate(date) {
     new Intl.DateTimeFormat([], { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 }
 
+export function clone(item) {
+  return JSON.parse(JSON.stringify(item));
+}

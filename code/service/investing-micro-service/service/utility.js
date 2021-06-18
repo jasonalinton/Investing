@@ -1,4 +1,4 @@
-
+import util from 'util'
 
 // function toISODate(datetime) {
 //     return (datetime.toJSON()).split("T")[0];
@@ -12,27 +12,27 @@
 export function logErrors(error) {
     // Node, Binance
     if (error.stack) {
-        console.log(error.stack);
+        util.log(error.stack);
     }
     // Node, Binance
     if (error.message) {
-        console.log(error.stack);
+        util.log(error.stack);
     }
     if (error.response && error.response.data && error.response.data.errors) {
         error.response.data.errors.forEach(err => {
-            console.log(err);
+            util.log(err);
         });
     }
     if (error.data && error.data.data && error.data.data.errors) {
         error.data.data.errors.forEach(err => {
-            console.log(err);
+            util.log(err);
         });
     }
     else {
-        console.log(error);
+        util.log(error);
     }
 }
 
 export function test() {
-    console.log("Tesing Export");
+    util.log("Tesing Export");
 }

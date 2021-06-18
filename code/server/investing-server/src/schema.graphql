@@ -3,10 +3,13 @@ type Query {
   bogeTransfers: [BogeTransfer!]!
   getLastSavedTransferTime: String!
   getBogePrice: Float!
-  getBogePrice1: Float!
+  bogePrice: Float!
 
   # Portfolio
   portfolioBalance: PortfolioBalance!
+
+  # Asset List
+  assets: [AssetList!]!
 }
 
 type Mutation {
@@ -74,16 +77,6 @@ input AssetInput {
   text: String
   symbol: String!
   name: String
-}
-
-type AssetPrice {
-  timeframe: String!
-  price: Float!
-}
-
-type AssetBalance {
-  timeframe: String!
-  balance: Float!
 }
 
 type AssetValue {
@@ -246,4 +239,37 @@ type PortfolioBalance {
   binance: Float!
   boge: Float!
   bnb: Float!
+}
+
+# Asset List
+type AssetList {
+  name: String!
+  symbol: String!
+  balance: Float!
+  balances: [AssetBalance!]!
+  price: Float!
+  prices: [AssetPrice!]!
+  timeframes: [AssetTimeframe!]!
+  value: Float!
+}
+type AssetBalance {
+  balance: Float
+  timeframe: String
+}
+type AssetPrice {
+  price: Float
+  timeframe: String
+}
+type AssetTimeframe {
+  balance: Float
+  change: AssetChange
+  price: Float
+  timeframe: String
+  value: Float
+}
+type AssetChange {
+  balance: Float
+  balancePercent: Float
+  value: Float
+  valuePercent: Float
 }
