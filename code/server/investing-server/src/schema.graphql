@@ -4,6 +4,9 @@ type Query {
   getLastSavedTransferTime: String!
   getBogePrice: Float!
   getBogePrice1: Float!
+
+  # Portfolio
+  portfolioBalance: PortfolioBalance!
 }
 
 type Mutation {
@@ -235,4 +238,12 @@ type BinanceWallet {
   datetime: String!
   symbol: String!
   balance: Float!
+}
+
+# Portfolio
+type PortfolioBalance {
+  total: Float!
+  binance: Float!
+  boge: Float!
+  bnb: Float!
 }

@@ -1,3 +1,4 @@
+import util from 'util'
 import axios from "axios";
 import date from 'date-and-time';
 import { logErrors } from '../utility'
@@ -102,11 +103,11 @@ class AssetValueService {
                 bars = self.createBars(response.data, bars);
 
                 if (response.data.length > 0 && response.data.length % self.responseLimit == 0) {
-                    console.log(`${bars.length} ${self.symbol} records queried so far for ${barInterval} interval`);
+                    util.log(`${bars.length} ${self.symbol} records queried so far for ${barInterval} interval`);
                     let lastCloseDate = new Date(bars[bars.length - 1].closeTime);
                     return self.getAssetHistory(self, barInterval, lastCloseDate, bars);
                 } else {
-                    console.log(`${bars.length} total ${self.symbol} records queried for ${barInterval} interval`);
+                    util.log(`${bars.length} total ${self.symbol} records queried for ${barInterval} interval`);
                     return bars;
                 }
             }, logErrors);

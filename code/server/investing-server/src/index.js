@@ -4,17 +4,21 @@ const { PrismaClient } = require('@prisma/client');
 const fs = require('fs');
 const path = require('path');
 
-const Query = require('./resolvers/Query')
+const QueryFile = require('./resolvers/Query')
 const MutationFile = require('./resolvers/Mutation')
 const BogeLiquidityMutation = require('./resolvers/mutations/bogeLiquidityMutation')
 const AssetInfoMutation = require('./resolvers/mutations/assetInfoMutation')
-const PortfolioMutation = require('./resolvers/mutations/portfolioMutation')
+const PortfolioQuery = require('./resolvers/queries/portfolioQuery')
+
+const Query = {
+  ...QueryFile,
+  ...PortfolioQuery
+}
 
 const Mutation = {
   ...MutationFile,
   ...BogeLiquidityMutation,
   ...AssetInfoMutation,
-  ...PortfolioMutation
 }
 
 const resolvers = {
