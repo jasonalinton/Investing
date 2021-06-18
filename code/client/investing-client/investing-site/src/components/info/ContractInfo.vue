@@ -1,13 +1,12 @@
 <template>
-    <div class="contract info d-flex flex-row align-items-center" @click="onContractClicked">
+    <div class="contract info d-flex flex-row align-items-center">
 
     <!-- Logo -->
     <img class="logo" src="/boge-transparent.png" width="55" height="60" />
 
     <!-- Numbers -->
     <div class="numbers d-flex flex-column">
-        <div class="price">${{ price.toFixed(2) }}</div>
-        <div class="price">${{ getBogePrice1.toFixed(2) }}</div>
+        <div class="price">{{ currency(bogePrice) }}</div>
         <div v-if="timeframe" class="d-flex flex-row">
         <span class="change">
             {{ timeframe.change.price.toFixed(2) }} / {{ timeframe.change.percent.toFixed(1) }}%
@@ -23,6 +22,7 @@
 import axios from "axios";
 import date from 'date-and-time';
 import gql from 'graphql-tag';
+import { currency } from '../../service/utility';
 
 export default {
   name: "ContractInfo",
@@ -30,13 +30,13 @@ export default {
     address: String,
   },
   apollo: {
-    getBogePrice1: gql`query {
-      getBogePrice1
+    bogePrice: gql`query {
+      bogePrice
     }`
   },
   data: function () {
       return {
-          getBogePrice1: '',
+          bogePrice: '',
           price: 0,
           timeframe: null,
           timeframes: [
@@ -55,7 +55,8 @@ export default {
   methods: {
     onContractClicked: function() {
         this.$emit('onContractClicked');
-    }
+    },
+    currency
   }
 };
 

@@ -105,6 +105,18 @@ function createCandelstickChart(self) {
       backgroundColor: '#1D1D1D',
       textColor: '#d1d4dc',
     },
+    grid: {
+        vertLines: {
+            color: 'rgb(15, 15, 15)',
+            style: 2,
+            visible: true,
+        },
+        horzLines: {
+            color: 'rgb(15, 15, 15)',
+            style: 2,
+            visible: true,
+        },
+    },
   });
 
   const series = self.chart.addCandlestickSeries({

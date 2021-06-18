@@ -84,7 +84,7 @@ async function getBogeKlines(startDatetime, endDatetime) {
         }
         `
     }
-    console.log(data.query)
+    // console.log(data.query)
     return axios.post('http://localhost:4000/graphql', data);
 }
 

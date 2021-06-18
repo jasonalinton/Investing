@@ -12,35 +12,18 @@
       <div id="app-header" class="row gx-4">
         <div class="col-auto">
           <div class="d-flex flex-row justify-content-start">
-            <BalanceInfo :address='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'></BalanceInfo>
-            <ContractInfo :address='"0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"' @onContractClicked="onContractClicked"></ContractInfo>
+            <PortfolioInfo></PortfolioInfo>
           </div>
+        </div>
+        <div class="col-auto d-flex align-items-center">
+            <img class="logo" src="/boge-transparent.png" width="55" height="60" @click="onContractClicked"/>
         </div>
         <div class="col" :style="{'overflow': 'scroll'}">
           <AssetList @onAssetClicked="onAssetClicked"></AssetList>
         </div>
       </div>
-      <!-- Chart -->
-      <div id="app-chart" class="row g-0" :style="{ 'height': style.chartHeight + 'px' }">
-        <div class="col">
-          <ContractChart v-if="chartType == 'contract' && renderContractChart" type="area"></ContractChart>
-          <AssetChart v-if="chartType=='asset' && renderAssetChart" type="candelstick" :asset="asset"></AssetChart>
-          <SplitTimeframeCharts v-if="chartType=='split' && renderAssetChart" type="candelstick" :asset="asset"></SplitTimeframeCharts>
-        </div>
-      </div>
-      <!-- Body -->
-      <div id="app-body" class="row g-0" :style="{ 'height': style.bodyHeight + 'px', 'overflow-y': 'scroll', 'overflow-x': 'clip' }">
-        <div class="col">
-          <TransferTable v-if="bodyType == 'table'" :txFromAddress='"0xfd345014ed667bb07eb26345e66addc9e8164b3b"'> </TransferTable>
-          <RiskManagement v-if="bodyType == 'risk'" :asset="asset"></RiskManagement>
-          <div  class="row">
-            <div class="col-12">
-              <TradeTable v-if="renderTradeTable" :asset="asset"></TradeTable>
-            </div>
-          </div>
-        </div>
-      </div>
-        
+      <asset v-if="chartType == 'asset' && renderAsset" :asset="asset"></asset>
+      <contract v-if="chartType == 'contract' && renderContract"></contract>
     </div>
   </div>
 </template>
@@ -48,37 +31,25 @@
 <script>
 import $ from "jquery";
 
-import ContractInfo from "./components/info/ContractInfo.vue";
-import BalanceInfo from "./components/info/BalanceInfo.vue";
+import PortfolioInfo from "./components/info/PortfolioInfo.vue";
 import AssetList from "./components/info/AssetList.vue";
-import ContractChart from "./components/chart/ContractChart.vue";
-import TransferTable from "./components/TransferTable.vue";
-import RiskManagement from "./components/risk/RiskManagement.vue";
-import AssetChart from "./components/chart/AssetChart.vue";
-import SplitTimeframeCharts from "./components/chart/SplitTimeframeCharts.vue";
-import TradeTable from './components/table/TradeTable.vue'
+import Asset from './components/Asset.vue';
+import Contract from './components/Contract.vue';
+import { clone } from './service/utility'
 
 export default {
   name: "App",
   components: {
-    ContractInfo,
-    BalanceInfo,
+    PortfolioInfo,
     AssetList,
-    ContractChart,
-    TransferTable,
-    RiskManagement,
-    AssetChart,
-    SplitTimeframeCharts,
-    TradeTable
+    Asset,
+    Contract
   },
   data: function () {
     return {
-      showChart: false,
-      bodyType: 'table',
       chartType: 'contract',
-      renderAssetChart: true,
-      renderTradeTable: true,
-      renderContractChart: true,
+      renderAsset: true,
+      renderContract: true,
       asset: {},
       style: {
         windowPadding: {
@@ -90,55 +61,7 @@ export default {
         bodyHeight: 0,
         chartHeight: 500
       },
-      assetInfos: [
-        {
-          name: "Cardano",
-          symbol: "ADA",
-          balance: 376.7509,
-          value: 655.5,
-          kLines: [],
-          address: "",
-          change: { timeframe: "24hrs", balance: null, amount: 5859.997, percent: 18, series: [
-            { time: '2018-10-19', value: 219.31 },
-            { time: '2018-10-22', value: 220.65 },
-            { time: '2018-10-23', value: 222.73 },
-            { time: '2018-10-24', value: 215.09 },
-            { time: '2018-10-25', value: 219.80 },
-          ] },
-          changes: [
-              { timeframe: "24hrs", balance: 5574, amount: 5859.997, percent: 18 },
-              { timeframe: "1w", balance: 9874, amount: 1058, percent: 5 },
-              { timeframe: "30d", balance: 654654, amount: 855, percent: 5.7 },
-              { timeframe: "1hr", balance: 8879, amount: 585, percent: 1255 }
-          ]
-        },
-        {
-          name: "Binance Chain",
-          symbol: "BNB",
-          balance: 1.6300005,
-          value: 1058.57,
-          kLines: [],
-          address: "",
-          change: { timeframe: "24hrs", balance: null, amount: -432, percent: 9, series: [
-            { time: '2018-12-01', value: 32.51 },
-            { time: '2018-12-02', value: 31.11 },
-            { time: '2018-12-03', value: 27.02 },
-            { time: '2018-12-04', value: 27.32 },
-            { time: '2018-12-05', value: 25.17 },
-            { time: '2018-12-06', value: 28.89 },
-          ] },
-          changes: [
-              { timeframe: "24hrs", balance: 5574, amount: 5859.997, percent: 18 },
-              { timeframe: "1w", balance: 9874, amount: 1058, percent: 5 },
-              { timeframe: "30d", balance: 654654, amount: 855, percent: 5.7 },
-              { timeframe: "1hr", balance: 8879, amount: 585, percent: 1255 }
-          ]
-        },
-      ]
     };
-  },
-  beforeMount: function() {
-    this.asset = this.assetInfos[0];
   },
   mounted: function() {
     this.onResize();
@@ -156,36 +79,24 @@ export default {
       return { 'height': height };
     },
     getChartHeight: function () {
-      return 500;
+      return this.style.chartHeight;
     },
     getBodyHeight: function () {
       return $(window.top).height() - $('#app-header').height() - $('#app-chart').height();
     },
     onAssetClicked: function(asset) {
       this.asset = clone(asset);
-      this.bodyType = 'risk';
       this.chartType = 'asset';
-      this.renderAssetChart = false;
-      this.renderTradeTable = false;
-      this.$nextTick(() => {
-        this.renderAssetChart = true;
-      this.renderTradeTable = true;
-      });
+      this.renderAsset = false;
+      this.$nextTick(() => this.renderAsset = true);
     },
     onContractClicked: function() {
-      this.bodyType = 'table';
       this.chartType = 'contract';
-      this.renderContractChart = false;
-      this.$nextTick(() => {
-        this.renderContractChart = true;
-      });
+      this.renderContract = false;
+      this.$nextTick(() => this.renderContract = true);
     }
   },
 };
-
-function clone(item) {
-  return JSON.parse(JSON.stringify(item));
-}
 </script>
 
 <style>
