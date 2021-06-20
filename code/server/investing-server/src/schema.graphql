@@ -10,6 +10,10 @@ type Query {
 
   # Asset List
   assets: [AssetList!]!
+
+  # Asset Value
+  bars(symbol: String!, interval: String, periods: Int): [Bar!]!
+  barsInRange(start: String!, end: String!, symbol: String!, interval: String, periods: Int): [Bar!]!
 }
 
 type Mutation {
@@ -65,6 +69,11 @@ type Mutation {
   ): BinanceWallet
 }
 
+type Subscription {
+  barAdded(symbol: String!, interval: String!): AssetValue!
+  test: String!
+}
+
 type Asset {
   id: ID!
   text: String!
@@ -106,6 +115,7 @@ type AssetBar {
   idQuoteAsset: Int!
   symbol: String!
   interval: String!
+  datetime: String!
   openTime: String!
   open: Float!
   high: Float!
@@ -143,6 +153,7 @@ input AssetValueInput {
 }
 
 type Bar {
+  datetime: String!
   openTime: String!
   open: Float!
   high: Float!
@@ -273,3 +284,5 @@ type AssetChange {
   value: Float
   valuePercent: Float
 }
+
+# Subscription

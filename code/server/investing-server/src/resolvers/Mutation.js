@@ -1,3 +1,6 @@
+const { PubSub } = require('apollo-server');
+const pubsub = new PubSub();
+
 async function addAssetValue(parent, args, context, info) {
     let assetValue = args.assetValue;
     let data = {
@@ -37,6 +40,9 @@ async function addAssetValue(parent, args, context, info) {
             baseAsset: true
         },
     });
+
+    context.pubsub.publish('BAR_ADDED', { barAdded: av });
+
     console.log(`Added ${av.baseAsset.symbol} AssetValue-${av.interval}: ${formatDate(av.openTime)} - $${av.open}`);
     return av;
 }

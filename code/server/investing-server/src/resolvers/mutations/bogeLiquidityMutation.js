@@ -30,7 +30,7 @@ async function addBogeLiquidity(parent, args, context, info) {
     let datetimeArray = (new Date(args.datetime)).toJSON().split(":");
     let datetime = new Date(`${datetimeArray[0]}:${datetimeArray[1]}:00.000Z`);
 
-    let assetValue = await context.prisma.assetValue.findFirst({
+    let assetValue = await context.prisma.assetBar.findFirst({
         where: {
             symbol: "BNB",
             openTime: {
@@ -55,9 +55,6 @@ async function addBogeLiquidity(parent, args, context, info) {
             bogeBalance_V2: args.bogeBalance_V2,
             price_V2: price_V2,
             price: (price_BOGE_9 + price_V2) / 2
-        },
-        select: {
-            id: true
         }
     });
 

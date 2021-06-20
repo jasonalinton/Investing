@@ -16,14 +16,14 @@
           </div>
         </div>
         <div class="col-auto d-flex align-items-center">
-            <img class="logo" src="/boge-transparent.png" width="55" height="60" @click="onContractClicked"/>
+            <ContractInfo type="navbar"></ContractInfo>
         </div>
         <div class="col" :style="{'overflow': 'scroll'}">
           <AssetList @onAssetClicked="onAssetClicked"></AssetList>
         </div>
       </div>
-      <asset v-if="chartType == 'asset' && renderAsset" :asset="asset"></asset>
-      <contract v-if="chartType == 'contract' && renderContract"></contract>
+      <Asset v-if="chartType == 'asset' && renderAsset" :asset="asset"></Asset>
+      <Contract v-if="chartType == 'contract' && renderContract"></Contract>
     </div>
   </div>
 </template>
@@ -35,7 +35,8 @@ import PortfolioInfo from "./components/info/PortfolioInfo.vue";
 import AssetList from "./components/info/AssetList.vue";
 import Asset from './components/Asset.vue';
 import Contract from './components/Contract.vue';
-import { clone } from './service/utility'
+// import { clone } from './service/utility'
+import ContractInfo from './components/info/ContractInfo.vue';
 
 export default {
   name: "App",
@@ -43,7 +44,8 @@ export default {
     PortfolioInfo,
     AssetList,
     Asset,
-    Contract
+    Contract,
+    ContractInfo
   },
   data: function () {
     return {
@@ -85,7 +87,7 @@ export default {
       return $(window.top).height() - $('#app-header').height() - $('#app-chart').height();
     },
     onAssetClicked: function(asset) {
-      this.asset = clone(asset);
+      this.asset = asset;
       this.chartType = 'asset';
       this.renderAsset = false;
       this.$nextTick(() => this.renderAsset = true);

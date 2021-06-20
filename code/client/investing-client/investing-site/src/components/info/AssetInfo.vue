@@ -6,8 +6,8 @@
             <div class="change" :class="changeClass()">{{ `$${formatNum(asset.timeframe.change.value)} (${formatNum(asset.timeframe.change.valuePercent)}%)` }}</div>
         </div>
         <div class="d-flex flex-column justify-content-between" :style="{'padding': '8px'}">
-            <div class="value" :class="changeClass()">{{ currency(asset.value) }}</div>
-            <div class="balance">{{ formatNum(asset.balance) }}</div>
+            <div class="value" :class="changeClass()">{{ currency(asset.price) }}</div>
+            <div class="balance">{{ formatNum(asset.balance) }} {{ currency(asset.value) }}</div>
         </div>
         <div class="d-flex" :style="{'padding': '8px'}">
             <div :id="`${asset.symbol}-info-chart`"></div>
@@ -122,20 +122,14 @@ export default {
             return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' }).format(number);
         },
         onAssetClicked: function() {
-            // this.getBars(this.asset.symbol)
-            // .then(res => {
-            //     self.data = res.data.data.getAssetCandles;
-            //     this.$emit('onAssetClicked', clone(this.asset));
-            // })
-            
-            this.$emit('onAssetClicked', clone(this.asset));
+            this.$emit('onAssetClicked', this.asset);
         }
     }
 };
 
-function clone(item) {
-  return JSON.parse(JSON.stringify(item));
-}
+// function clone(item) {
+//   return JSON.parse(JSON.stringify(item));
+// }
 //
 </script>
 

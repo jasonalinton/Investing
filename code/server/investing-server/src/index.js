@@ -6,6 +6,7 @@ const path = require('path');
 
 const QueryFile = require('./resolvers/Query')
 const MutationFile = require('./resolvers/Mutation')
+const SubscriptionFile = require('./resolvers/Subscription')
 const BogeLiquidityMutation = require('./resolvers/mutations/bogeLiquidityMutation')
 const AssetInfoMutation = require('./resolvers/mutations/assetInfoMutation')
 const PortfolioQuery = require('./resolvers/queries/portfolioQuery')
@@ -23,9 +24,17 @@ const Mutation = {
   ...AssetInfoMutation,
 }
 
+const Subscription = {
+  ...SubscriptionFile
+}
+
+const { PubSub } = require('apollo-server');
+const pubsub = new PubSub();
+
 const resolvers = {
   Query,
-  Mutation
+  Mutation,
+  Subscription
 }
 
 const prisma = new PrismaClient()
@@ -38,7 +47,8 @@ const server = new ApolloServer({
   context: ({ req }) => {
     return {
       ...req,
-      prisma
+      prisma,
+      pubsub
     };
   }
 });

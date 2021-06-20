@@ -12,9 +12,7 @@ import BogeTransferService from './service/boge/bogeTransferService';
 import BogeWalletService from './service/boge/bogeWalletService'
 import BogeLiquidityService from './service/boge/bogeLiquidityService';
 import AssetValueService from './service/binance/assetValueService';
-import AssetListService from './service/binance/assetListService';
 import BinanceWalletService from './service/binance/binanceWalletService';
-import PortfolioBalanceService from './service/portfolio/portfolioBalanceService';
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
@@ -33,14 +31,6 @@ io.on('connection', (socket) => {
 
     socket.on('emit-transfer-added', transfer => {
         io.emit('transfer-added', transfer);
-    });
-
-    socket.on('emit-asset-list', assetList => {
-        io.emit('asset-list', assetList);
-    });
-
-    socket.on('emit-portfolio-value', portfolioValue => {
-        io.emit('portfolio-value', portfolioValue);
     });
 });
 

@@ -8,7 +8,7 @@
             </div>
             <div class="row g-0">
                 <div class="col">
-                    <contract-info  :address='"0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"'></contract-info>
+                    <contract-info type="header"  :address='"0x248c45af3b2f73bc40fa159f2a90ce9cad7a77ba"'></contract-info>
                 </div>
             </div>
             <div class="row g-0">

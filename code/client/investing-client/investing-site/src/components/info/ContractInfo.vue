@@ -1,21 +1,26 @@
 <template>
-    <div class="contract info d-flex flex-row align-items-center">
-
-    <!-- Logo -->
-    <img class="logo" src="/boge-transparent.png" width="55" height="60" />
-
-    <!-- Numbers -->
-    <div class="numbers d-flex flex-column">
-        <div class="price">{{ currency(bogePrice) }}</div>
-        <div v-if="timeframe" class="d-flex flex-row">
-        <span class="change">
-            {{ timeframe.change.price.toFixed(2) }} / {{ timeframe.change.percent.toFixed(1) }}%
-        </span>
-        <!-- Timeframe -->
-        <div class="timeframe" @click="toggleTimeframe" :style="{'text-align': 'center'}">{{ timeframe.text }}</div>
-        </div>
+  <div>
+    <div v-if="type == 'navbar'" class="contract info d-flex flex-column align-items-center">
+      <img class="logo m-auto" src="/boge-transparent.png" width="40" height="45" />
+      <div class="price">{{ currency(bogePrice) }}</div>
     </div>
+
+    <div v-if="type == 'header'" class="contract info d-flex flex-row align-items-center">
+      <!-- Logo -->
+      <img class="logo" src="/boge-transparent.png" width="55" height="60" />
+      <!-- Numbers -->
+      <div class="numbers d-flex flex-column">
+          <div class="price">{{ currency(bogePrice) }}</div>
+          <div v-if="timeframe" class="d-flex flex-row">
+          <span class="change">
+              {{ timeframe.change.price.toFixed(2) }} / {{ timeframe.change.percent.toFixed(1) }}%
+          </span>
+          <!-- Timeframe -->
+          <div class="timeframe" @click="toggleTimeframe" :style="{'text-align': 'center'}">{{ timeframe.text }}</div>
+          </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -28,6 +33,7 @@ export default {
   name: "ContractInfo",
   props: {
     address: String,
+    type: String
   },
   apollo: {
     bogePrice: gql`query {
@@ -113,9 +119,10 @@ function monthAgo() {
 }
 
 .contract.info .price {
-  font-size: 48px;
-  line-height: 58px;
-  color: #4df832;
+  font-size: 20px;
+  color: #25a811;
+  z-index: 10;
+  margin-top: -17px;
 }
 
 .contract.info .change {
@@ -139,6 +146,5 @@ function monthAgo() {
 
 .contract.info .logo {
   margin-right: 12px;
-  /* margin-top: 16px; */
 }
 </style>
