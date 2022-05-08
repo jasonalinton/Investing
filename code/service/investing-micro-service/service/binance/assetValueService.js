@@ -97,8 +97,8 @@ class AssetValueService {
             }
             bars = [];
         }
-
-        return axios.get(`https://api.binance.us/api/v3/klines?symbol=${self.symbol}USD&limit=${self.responseLimit}&interval=${barInterval}&startTime=${lastSavedTime.getTime()}`)
+        let symbol = (self.symbol == 'SHIB') ? `${self.symbol}USDT` : `${self.symbol}USD`;
+        return axios.get(`https://api.binance.us/api/v3/klines?symbol=${symbol}&limit=${self.responseLimit}&interval=${barInterval}&startTime=${lastSavedTime.getTime()}`)
             .then(response => {
                 bars = self.createBars(response.data, bars);
 

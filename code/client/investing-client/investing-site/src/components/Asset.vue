@@ -3,7 +3,7 @@
         <div class="col">
             <div class="row g-0">
                 <div class="col">
-                    <asset-chart :asset="asset" type="candelstick"></asset-chart>
+                    <asset-chart :asset="asset" :trades="trades" type="candelstick"></asset-chart>
                 </div>
             </div>
             <div class="row g-0">
@@ -16,7 +16,7 @@
             </div>
             <div class="row g-0">
                 <div class="col">
-                    <trade-table :asset="asset"></trade-table>
+                    <trade-table :asset="asset" @tradesUpdated="tradesUpdated"></trade-table>
                 </div>
             </div>
         </div>
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import AssetChart from './chart/AssetChart.vue';
+import AssetChart from './chart/AssetChart2.vue';
 import TradeTable from './table/TradeTable.vue';
 import { currency } from '../service/utility'
 
@@ -32,13 +32,24 @@ export default {
     components: { AssetChart, TradeTable },
     name: "Asset",
     props: { asset: Object },
+    data: function() {
+        return {
+            trades: []
+        }
+    },
     created: function() {
         
     },
     methods: {
-        currency: (number) => {
-            return currency(number);
-        }
+        currency(number) {
+            if (this.asset.symbol == "SHIB")
+                return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol', minimumSignificantDigits: 4 }).format(number);
+            else
+                return currency(number);
+        },
+        tradesUpdated: function(trades) {
+            this.trades = trades;
+        },
     }
 }
 </script>

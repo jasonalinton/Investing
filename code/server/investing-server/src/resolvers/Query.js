@@ -1,5 +1,23 @@
 const date = require('date-and-time');
 
+async function assetPrice(parent, args, context, info) {
+    let bar = await context.prisma.assetValue.findFirst({
+        where: {
+            symbol: args.symbol,
+            interval: '1m'
+        },
+        orderBy: {
+            openTime: 'desc'
+        },
+        include: {
+            baseAsset: true,
+            quoteAsset: true
+        }
+    });
+
+    return bar.close
+}
+
 function assetValues(parent, args, context, info) {
     return context.prisma.assetValue.findMany({
         include: {
@@ -215,7 +233,7 @@ async function barsInRange(parent, args, context, info) {
         let closeTime = date.addSeconds(addTimeframeUnit(openTime, timeframeNum), -1);
         let open = assetValues[0].open;
 
-        let bar = { datetime: new Date(openTime), openTime, open, high: open, low: undefined, close: 0, volume: 0, closeTime };
+        let bar = { datetime: (new Date(openTime)).toJSON(), openTime, open, high: open, low: undefined, close: 0, volume: 0, closeTime };
         bars.push(bar);
 
         assetValues.forEach(av => {
@@ -228,7 +246,7 @@ async function barsInRange(parent, args, context, info) {
                 openTime = addTimeframeUnit(openTime, timeframeNum);
                 closeTime = date.addSeconds(addTimeframeUnit(openTime, timeframeNum), -1);
 
-                bar = { openTime, open: av.open, high: av.high, low: av.low, close: av.close, volume: av.volume, closeTime };
+                bar = { datetime: (new Date(openTime)).toJSON(), openTime, open: av.open, high: av.high, low: av.low, close: av.close, volume: av.volume, closeTime };
                 bars.push(bar);
             }
         });
@@ -240,11 +258,12 @@ async function barsInRange(parent, args, context, info) {
 }
   
 module.exports = {
+    assetPrice,
     assetValues,
     bogeTransfers,
     getLastSavedTransferTime,
     getBogePrice,
     bogePrice,
-    bars,
+    // bars,
     barsInRange
 }

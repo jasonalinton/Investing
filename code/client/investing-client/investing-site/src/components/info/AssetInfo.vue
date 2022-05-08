@@ -116,10 +116,13 @@ export default {
                 return "#FF0F23";
         },
         formatNum: function(number) {
-            return Number(number.toFixed(2)).toLocaleString();
+            return (number == null) ? -1 :  Number(number.toFixed(2)).toLocaleString();
         },
         currency: function(number) {
-            return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' }).format(number);
+            if (this.asset.symbol == "SHIB")
+                return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol', minimumSignificantDigits: 4 }).format(number);
+            else
+                return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' }).format(number);
         },
         onAssetClicked: function() {
             this.$emit('onAssetClicked', this.asset);

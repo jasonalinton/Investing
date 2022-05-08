@@ -197,7 +197,7 @@ class BogeTransferService {
                 ethereum(network: bsc) {
                     transfers(
                     options: {desc: "block.timestamp.time", limit: 10000, offset: 0}
-                    date: {since: null, till: null}
+                    date: {after: null, till: null}
                     amount: {gt: 0}
                     txHash: {in: ` + JSON.stringify(txHashs) + `} ) {
                     transaction {

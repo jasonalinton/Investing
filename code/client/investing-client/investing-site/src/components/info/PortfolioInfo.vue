@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import gql from 'graphql-tag';
+// import gql from 'graphql-tag';
 import { currency } from '../../service/utility';
 
 export default {
@@ -16,23 +16,23 @@ export default {
   props: {
       address: String,
   },
-  apollo: {
-    portfolioBalance: {
-        query: gql`query portfolioBalance {
-        portfolioBalance {
-          total
-          binance
-          boge
-          bnb
-        }
-      }`,
-      update: data => {
-        document.title = `Investing ${currency(data.portfolioBalance.total)}`;
-        return data.portfolioBalance;
-      },
-      pollInterval: 30000
-    }
-  },
+  // apollo: {
+  //   portfolioBalance: {
+  //       query: gql`query portfolioBalance {
+  //       portfolioBalance {
+  //         total
+  //         binance
+  //         boge
+  //         bnb
+  //       }
+  //     }`,
+  //     update: data => {
+  //       document.title = `Investing ${currency(data.portfolioBalance.total)}`;
+  //       return data.portfolioBalance;
+  //     },
+  //     pollInterval: 30000
+  //   }
+  // },
   data: function () {
     return {
       portfolioBalance: { 

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
@@ -15,7 +15,9 @@
     "dotenv": "^8.6.0",
     "jquery": "^3.6.0",
     "lightweight-charts": "^3.3.0",
+    "moment": "^2.29.1",
     "socket.io-client": "^4.1.2",
+    "talib": "^1.1.4",
     "vue": "^2.6.11",
     "vue-apollo": "^3.0.0-beta.11",
     "web3": "^1.3.6"

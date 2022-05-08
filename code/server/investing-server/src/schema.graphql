@@ -1,4 +1,5 @@
 type Query {
+  assetPrice(symbol: String!): Float!
   assetValues: [AssetValue!]!
   bogeTransfers: [BogeTransfer!]!
   getLastSavedTransferTime: String!
@@ -9,11 +10,16 @@ type Query {
   portfolioBalance: PortfolioBalance!
 
   # Asset List
-  assets: [AssetList!]!
+  assets: [Asset!]!
+  # assets: [AssetList!]!
 
   # Asset Value
   bars(symbol: String!, interval: String, periods: Int): [Bar!]!
   barsInRange(start: String!, end: String!, symbol: String!, interval: String, periods: Int): [Bar!]!
+
+  # 2.0
+  thirtyEightTwo(symbol: String!, interval: String, periods: Int): [Hammer!]!
+  highsAndLows(symbol: String!, interval: String, periods: Int): HighsAndLows!
 }
 
 type Mutation {
@@ -67,18 +73,29 @@ type Mutation {
     datetime: String!
     balance: Float!
   ): BinanceWallet
+
+
+  # 
+  # populateAssets: [Asset!]
+  populateAssets: Boolean
+  # populateAssetPairs: [AssetPair!]
+  populateAssetPairs: Boolean
+  populateWallets: Boolean
+  populateInvestments: [Transfer!]
 }
 
 type Subscription {
   barAdded(symbol: String!, interval: String!): AssetValue!
+  priceUpdated(symbol: String!,): Float!
   test: String!
+  highLowAdded(symbol: String!, interval: String, periods: Int): Marker!
 }
 
 type Asset {
-  id: ID!
-  text: String!
+  id: ID
+  text: String
   symbol: String!
-  name: String!
+  name: String
 }
 
 input AssetInput {
@@ -153,6 +170,7 @@ input AssetValueInput {
 }
 
 type Bar {
+  id: ID
   datetime: String!
   openTime: String!
   open: Float!
@@ -286,3 +304,53 @@ type AssetChange {
 }
 
 # Subscription
+
+
+
+# 2.0
+# type Asset {
+#     id: Int
+#     symbol: String
+#     name: String
+# }
+
+type AssetPair {
+    id: Int
+    symbol: String
+    baseAsset: String
+    quoteAsset: String
+}
+
+type Transfer {
+    id: Int
+    datetime: String
+    quantity: Float
+    fee: Float
+    priceTotal: Float
+    priceSubtotal: Float
+    addressOut: String
+    addressIn: String
+    transferID: String
+    txID: String
+}
+
+type Hammer {
+  id: Int
+  datetime: String
+  direction: String
+}
+
+type HighLow {
+  id: Int
+  datetime: String
+}
+
+type HighsAndLows {
+  highs: [HighLow!]!
+  lows: [HighLow!]!
+}
+
+type Marker {
+  bar: Bar!
+  type: String!
+}

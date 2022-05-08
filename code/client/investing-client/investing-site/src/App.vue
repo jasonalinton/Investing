@@ -12,18 +12,20 @@
       <div id="app-header" class="row gx-4">
         <div class="col-auto">
           <div class="d-flex flex-row justify-content-start">
-            <PortfolioInfo></PortfolioInfo>
+            <!-- <PortfolioInfo></PortfolioInfo> -->
           </div>
         </div>
         <div class="col-auto d-flex align-items-center">
-            <ContractInfo type="navbar"></ContractInfo>
+            <!-- <ContractInfo type="navbar"></ContractInfo> -->
         </div>
         <div class="col" :style="{'overflow': 'scroll'}">
-          <AssetList @onAssetClicked="onAssetClicked"></AssetList>
+          <Assets @onAssetClicked="onAssetClicked"></Assets>
+          <!-- <AssetList @onAssetClicked="onAssetClicked"></AssetList> -->
         </div>
       </div>
       <Asset v-if="chartType == 'asset' && renderAsset" :asset="asset"></Asset>
       <Contract v-if="chartType == 'contract' && renderContract"></Contract>
+      <!-- <RiskManagement v-if="chartType == 'risk'" :symbol="'SHIB'"></RiskManagement> -->
     </div>
   </div>
 </template>
@@ -31,28 +33,179 @@
 <script>
 import $ from "jquery";
 
-import PortfolioInfo from "./components/info/PortfolioInfo.vue";
-import AssetList from "./components/info/AssetList.vue";
+// import PortfolioInfo from "./components/info/PortfolioInfo.vue";
+// import AssetList from "./components/info/AssetList.vue";
+import Assets from './components/info/Assets.vue';
 import Asset from './components/Asset.vue';
 import Contract from './components/Contract.vue';
 // import { clone } from './service/utility'
-import ContractInfo from './components/info/ContractInfo.vue';
+// import ContractInfo from './components/info/ContractInfo.vue';
+// import RiskManagement from './components/risk/RiskManagement.vue';
 
 export default {
   name: "App",
   components: {
-    PortfolioInfo,
-    AssetList,
+    // PortfolioInfo,
+    // AssetList,
     Asset,
+    Assets,
     Contract,
-    ContractInfo
+    // ContractInfo,
+    // RiskManagement
   },
   data: function () {
     return {
-      chartType: 'contract',
+      chartType: 'risk',
       renderAsset: true,
       renderContract: true,
-      asset: {},
+      asset: {
+        "name": "SHIBA INU",
+        "symbol": "SHIB",
+        "balance": 40362402,
+        "balances": [
+            {
+                "balance": -1,
+                "timeframe": "1m",
+                "__typename": "AssetBalance"
+            },
+            {
+                "balance": -1,
+                "timeframe": "1h",
+                "__typename": "AssetBalance"
+            },
+            {
+                "balance": -1,
+                "timeframe": "1d",
+                "__typename": "AssetBalance"
+            },
+            {
+                "balance": -1,
+                "timeframe": "1w",
+                "__typename": "AssetBalance"
+            },
+            {
+                "balance": -1,
+                "timeframe": "1M",
+                "__typename": "AssetBalance"
+            }
+        ],
+        "price": 0.00002388,
+        "prices": [
+            {
+                "price": 0.00002388,
+                "timeframe": "1m",
+                "__typename": "AssetPrice"
+            },
+            {
+                "price": 0.00002535,
+                "timeframe": "1h",
+                "__typename": "AssetPrice"
+            },
+            {
+                "price": 0.00002402,
+                "timeframe": "1d",
+                "__typename": "AssetPrice"
+            },
+            {
+                "price": 0.00000717,
+                "timeframe": "1w",
+                "__typename": "AssetPrice"
+            },
+            {
+                "price": -1,
+                "timeframe": "1M",
+                "__typename": "AssetPrice"
+            }
+        ],
+        "timeframes": [
+            {
+                "balance": null,
+                "change": {
+                    "balance": null,
+                    "balancePercent": null,
+                    "value": null,
+                    "valuePercent": null,
+                    "__typename": "AssetChange"
+                },
+                "price": 0.00002388,
+                "timeframe": "1m",
+                "value": null,
+                "__typename": "AssetTimeframe"
+            },
+            {
+                "balance": null,
+                "change": {
+                    "balance": null,
+                    "balancePercent": null,
+                    "value": null,
+                    "valuePercent": null,
+                    "__typename": "AssetChange"
+                },
+                "price": 0.00002535,
+                "timeframe": "1h",
+                "value": null,
+                "__typename": "AssetTimeframe"
+            },
+            {
+                "balance": null,
+                "change": {
+                    "balance": null,
+                    "balancePercent": null,
+                    "value": null,
+                    "valuePercent": null,
+                    "__typename": "AssetChange"
+                },
+                "price": 0.00002402,
+                "timeframe": "1d",
+                "value": null,
+                "__typename": "AssetTimeframe"
+            },
+            {
+                "balance": null,
+                "change": {
+                    "balance": null,
+                    "balancePercent": null,
+                    "value": null,
+                    "valuePercent": null,
+                    "__typename": "AssetChange"
+                },
+                "price": 0.00000717,
+                "timeframe": "1w",
+                "value": null,
+                "__typename": "AssetTimeframe"
+            },
+            {
+                "balance": null,
+                "change": {
+                    "balance": null,
+                    "balancePercent": null,
+                    "value": null,
+                    "valuePercent": null,
+                    "__typename": "AssetChange"
+                },
+                "price": null,
+                "timeframe": "1M",
+                "value": null,
+                "__typename": "AssetTimeframe"
+            }
+        ],
+        "value": 963.8541597599999,
+        "__typename": "AssetList",
+        "timeframe": {
+            "balance": null,
+            "change": {
+                "balance": null,
+                "balancePercent": null,
+                "value": null,
+                "valuePercent": null,
+                "__typename": "AssetChange"
+            },
+            "price": 0.00002402,
+            "timeframe": "1d",
+            "value": null,
+            "__typename": "AssetTimeframe"
+        }
+    },
       style: {
         windowPadding: {
           left: 12,
@@ -76,10 +229,10 @@ export default {
       this.style.chartHeight = this.getChartHeight();
       this.style.bodyHeight = this.getBodyHeight();
     },
-    bodyStyle: function () {
-      let height = $(window).height() - $('#app-header').height() - $('#app-chart').height();
-      return { 'height': height };
-    },
+    // bodyStyle: function () {
+    //   let height = $(window).height() - $('#app-header').height() - $('#app-chart').height();
+    //   return { 'height': height };
+    // },
     getChartHeight: function () {
       return this.style.chartHeight;
     },

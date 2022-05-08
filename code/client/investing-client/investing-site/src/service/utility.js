@@ -26,6 +26,11 @@ export function formatDate(date) {
     new Intl.DateTimeFormat([], { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 }
 
+export function orderByAscDate(object) {
+    object = object.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+    return object;
+}
+
 export function clone(item) {
   return JSON.parse(JSON.stringify(item));
 }
@@ -38,4 +43,14 @@ export function replaceItem(item, itemList, property) {
     itemList.splice(index, 1, item);
     return true;
   }
+}
+
+export function removeItem(item, itemList) {
+    var findObject = (object) => object.id == item.id;
+    var index = itemList.findIndex(findObject);
+    if (index === -1) return false;
+    else {
+        itemList.splice(index, 1);
+        return true;
+    }
 }

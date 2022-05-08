@@ -25,21 +25,27 @@ async function addAssetValue(parent, args, context, info) {
         }
     };
 
-    let av = await context.prisma.assetBar.upsert({
-        create: data,
-        update: data,
-        where: {
-            symbol_interval_openTime: {
-                symbol: assetValue.symbol,
-                interval: assetValue.interval,
-                openTime: assetValue.openTime
-            }
-        },
-        include: {
-            quoteAsset: true,
-            baseAsset: true
-        },
-    });
+    let av;
+    try {
+        av = await context.prisma.assetBar.upsert({
+            create: data,
+            update: data,
+            where: {
+                symbol_interval_openTime: {
+                    symbol: assetValue.symbol,
+                    interval: assetValue.interval,
+                    openTime: assetValue.openTime
+                }
+            },
+            include: {
+                quoteAsset: true,
+                baseAsset: true
+            },
+        });
+    } catch (err) {
+        console.log(err);
+    }
+    
 
     context.pubsub.publish('BAR_ADDED', { barAdded: av });
 

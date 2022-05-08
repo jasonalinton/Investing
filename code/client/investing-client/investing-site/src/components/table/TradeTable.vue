@@ -40,7 +40,7 @@
 
                 <!-- Total -->
                 <td class="center">
-                    {{ currency(trade.price_Subtotal) }}
+                    {{ currency(trade.price_Total) }}
                 </td>
             </tr>
         </tbody>
@@ -66,7 +66,7 @@ export default {
     },
     computed: { },
     methods: {
-        getTrades: async (self) => {
+        getTrades: async function(self) {
             var data = {
                 query: `
                     mutation {
@@ -92,6 +92,7 @@ export default {
                         trade.datetime = new Date(Number(trade.datetime));
                         self.trades.push(trade);
                     });
+                    self.$emit("tradesUpdated", self.trades);
                 });
         },
         date: function (datetime) {
@@ -104,7 +105,10 @@ export default {
             return new Intl.DateTimeFormat([], { dateStyle: 'short', timeStyle: 'short' }).format(date);
         },
         currency: function(number) {
-            return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' }).format(number);
+            if (this.asset.symbol == "SHIB")
+                return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol', minimumSignificantDigits: 4 }).format(number);
+            else
+                return new Intl.NumberFormat([ ], { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' }).format(number);
         },
     },
 };

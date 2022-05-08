@@ -1,19 +1,32 @@
 const axios = require('axios');
 const HmacSHA256 = require('crypto-js/hmac-sha256');
 const Hex = require('crypto-js/enc-hex');
-const { logErrors } = require('../../utility');
+const { logErrors } = require('../../utility/utility');
+const { sortAlphabeticallyAsc } = require('../../utility/utility');
 
 require('dotenv').config();
 
 async function assets(parent, args, context, info) {
-    let assetListService = new AssetListService();
-    return await assetListService.getAssetList();
+    let assets = await context.prisma.asset.findMany({
+        select: {
+            id: true,
+            symbol: true,
+            text: true
+        }
+    })
+    return sortAlphabeticallyAsc(assets, 'symbol')
 }
+
+// async function assets(parent, args, context, info) {
+//     let assetListService = new AssetListService();
+//     return await assetListService.getAssetList();
+// }
 
 class AssetListService {
     constructor() {
         this.assets = [];
         this.followedAssets = [
+            'SHIB',
             'ADA',
             'BNB',
             'BTC',
@@ -33,7 +46,7 @@ class AssetListService {
 
                 res.data.balances.forEach(balance => {
                     if (self.followedAssets.includes(balance.asset)) {
-                        let asset = { symbol: balance.asset, balance: Number(balance.free), timeframes: [] };
+                        let asset = { symbol: balance.asset, balance: (Number(balance.free) + Number(balance.locked)), timeframes: [] };
                         self.assets.push(asset);
 
                         promises.push(self.getAssetInfo(self, asset));
@@ -129,7 +142,10 @@ class AssetListService {
     }
 
     async getAssetPrice(symbol) {
-        return axios.get(`https://api.binance.us/api/v3/ticker/price?symbol=${symbol}USD`);
+        if (symbol == "SHIB")
+            return axios.get(`https://api.binance.us/api/v3/ticker/price?symbol=${symbol}USDT`);
+        else
+            return axios.get(`https://api.binance.us/api/v3/ticker/price?symbol=${symbol}USD`);
     }
 
     async getAssetBalances(symbol) {

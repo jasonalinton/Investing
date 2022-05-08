@@ -2,22 +2,66 @@
     <div class="risk-management row g-0">
         <div class="col">
             <h1>Risk Management</h1>
-            <h2>{{ asset.symbol }}</h2>
-            <h3>{{ currency(asset.price) }}</h3>
+            <h2>{{ symbol }}</h2>
+            <h3 v-if="price">{{ currency(price) }}</h3>
         </div>
     </div>
 </template>
 
 <script>
 import { currency } from '../../service/utility'
+import talib  from 'talib'
 
 export default {
     name: "RiskManagement",
     props: {
-        asset: Object
+        symbol: String
+    },
+    data: function() {
+        return {
+            config: {
+                interval: '1m',
+                periods: 300
+            },
+            functions: [],
+            errorMessage: "",
+        }
     },
     created: function() {
+        console.log("TALib Version: " + talib.version);
+        // this.functions = talib.functions;
+        // functions.foreach(func => {
+        //     this.functions.push(func.name)
+        // })
         
+    },
+    apollo: {
+        bars: {
+            query() { return require('../../graphql/query/QueryBars.gql')},
+            variables() {
+                return {
+                    symbol: this.symbol,
+                    interval: this.config.interval,
+                    periods: this.config.periods
+                }
+            },
+            error: function(error) {
+                this.errorMessage = 'Error occurred while loading query'
+                console.log(this.errorMessage, error);
+            },
+            update(data) { 
+                return data.bars;
+            },
+            // subscribeToMore: [
+            //     {
+            //         document: require('../../../../graphql/subscription/todo/IterationAdded.gql'),
+            //         updateQuery: (previousResult, { subscriptionData: { data: { iterationAdded }} }) => {
+            //             previousResult.todoIterations.splice(0, 0, iterationAdded);
+            //             return previousResult;
+            //         },
+            //     },
+            // ]
+        },
     },
     methods: {
         currency: (number) => {

@@ -1,0 +1,11 @@
+query bars ($symbol: String!, $interval: String, $periods: Int) {
+  bars(symbol: $symbol, interval: $interval, periods: $periods) {
+    id
+    openTime
+    open
+    high
+    low
+    volume
+    close
+  }
+}

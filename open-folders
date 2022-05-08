@@ -1,0 +1,4 @@
+cd /Users/jasonalinton/Desktop/Investing/code/server/investing-server code .
+cd /Users/jasonalinton/Desktop/Investing/code/service/investing-micro-service code .
+cd /Users/jasonalinton/Desktop/Investing/code/service/data-service/binance-trade-data-service/ code .
+cd /Users/jasonalinton/Desktop/Investing/code/client/investing-client/investing-site code .

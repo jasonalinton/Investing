@@ -1,140 +1,416 @@
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-model Asset {
-  id               Int          @id @default(autoincrement())
-  symbol           String       @unique
-  name             String
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @default(now()) @updatedAt
-  baseAsset        Asset[]      @relation("AssetPair", references: [id])
-  quoteAsset       Asset[]      @relation("AssetPair", references: [id])
-  assetValueBase   AssetValue[] @relation("assetValueBase")
-  assetValueQuote  AssetValue[] @relation("assetValueQuote")
-  assetValueBase1  AssetBar[]   @relation("assetValueBase1")
-  assetValueQuote1 AssetBar[]   @relation("assetValueQuote1")
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
-model AssetValue {
-  id                       Int      @id @default(autoincrement())
-  idBaseAsset              Int
-  idQuoteAsset             Int
-  symbol                   String
-  interval                 String
-  openTime                 DateTime
-  open                     Float
-  high                     Float
-  low                      Float
-  close                    Float
-  volume                   Float
-  closeTime                DateTime
-  quoteAssetVolume         Float?
-  numberOfTrades           Float?
-  takerBuyBaseAssetVolume  Float?
-  takerBuyQuoreAssetVolume Float?
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @default(now()) @updatedAt
-  baseAsset                Asset    @relation(name: "assetValueBase", fields: [idBaseAsset], references: [id])
-  quoteAsset               Asset    @relation(name: "assetValueQuote", fields: [idQuoteAsset], references: [id])
-  // assetPair                 AssetPair[] @relation(fields: [idAssetPair], references: [id])
-
-  // @@unique([symbol, interval, openTime])
+model asset {
+  id                                                        Int                  @id @default(autoincrement())
+  text                                                      String               @db.VarChar(45)
+  symbol                                                    String               @db.VarChar(45)
+  name                                                      String?              @db.VarChar(45)
+  json                                                      String?              @db.LongText
+  misc                                                      String?              @db.LongText
+  isVisible                                                 Int                  @default(1) @db.TinyInt
+  isActive                                                  Int                  @default(1) @db.TinyInt
+  createdAt                                                 DateTime             @default(now()) @db.DateTime(0)
+  updatedAt                                                 DateTime             @default(now()) @db.DateTime(0)
+  asset_exchange                                            asset_exchange[]
+  assetpair_assetToassetpair_idBaseAsset                    assetpair[]          @relation("assetToassetpair_idBaseAsset")
+  assetpair_assetToassetpair_idQuoteAsset                   assetpair[]          @relation("assetToassetpair_idQuoteAsset")
+  exchange_assetpair_assetToexchange_assetpair_idBaseAsset  exchange_assetpair[] @relation("assetToexchange_assetpair_idBaseAsset")
+  exchange_assetpair_assetToexchange_assetpair_idQuoteAsset exchange_assetpair[] @relation("assetToexchange_assetpair_idQuoteAsset")
+  ledger                                                    ledger[]
+  order                                                     order[]
+  trade_assetTotrade_idAsset                                trade[]              @relation("assetTotrade_idAsset")
+  trade_assetTotrade_idAsset_Fee                            trade[]              @relation("assetTotrade_idAsset_Fee")
+  trade_assetTotrade_idAsset_Price                          trade[]              @relation("assetTotrade_idAsset_Price")
+  transfer_assetTotransfer_idAsset                          transfer[]           @relation("assetTotransfer_idAsset")
+  transfer_assetTotransfer_idAsset_Fee                      transfer[]           @relation("assetTotransfer_idAsset_Fee")
+  user                                                      user[]
+  userfavorite                                              userfavorite[]
+  wallet                                                    wallet[]
 }
 
-model AssetBar {
-  id                       Int      @id @default(autoincrement())
-  idBaseAsset              Int
-  idQuoteAsset             Int
-  symbol                   String
-  interval                 String
-  openTime                 DateTime
-  open                     Float
-  high                     Float
-  low                      Float
-  close                    Float
-  volume                   Float
-  closeTime                DateTime
-  quoteAssetVolume         Float?
-  numberOfTrades           Float?
-  takerBuyBaseAssetVolume  Float?
-  takerBuyQuoteAssetVolume Float?
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @default(now()) @updatedAt
-  baseAsset                Asset    @relation(name: "assetValueBase1", fields: [idBaseAsset], references: [id])
-  quoteAsset               Asset    @relation(name: "assetValueQuote1", fields: [idQuoteAsset], references: [id])
-  // assetPair                 AssetPair[] @relation(fields: [idAssetPair], references: [id])
+model asset_exchange {
+  id         Int      @id @default(autoincrement())
+  idAsset    Int
+  idExchange Int
+  position   Int?
+  json       String?  @db.LongText
+  isVisible  Int      @default(1) @db.TinyInt
+  isActive   Int      @default(1) @db.TinyInt
+  createdAt  DateTime @default(now()) @db.DateTime(0)
+  updatedAt  DateTime @default(now()) @db.DateTime(0)
+  asset      asset    @relation(fields: [idAsset], references: [id])
+  exchange   exchange @relation(fields: [idExchange], references: [id])
 
-  @@unique([symbol, interval, openTime])
+  @@index([idAsset], name: "fk_Asset_Exchange_Asset_idx")
+  @@index([idExchange], name: "fk_Asset_Exchange_Exchange_idx")
 }
 
-model BogeTransfers {
-  id              Int       @id @default(autoincrement())
-  datetime        DateTime?
-  type            String?
-  bnbAmount       Float?
-  bnbUnitValue    Float?
-  bogeAmount      Float?
-  priceTotal      Float?
-  priceUnit       Float?
-  senderAddress   String?
-  receiverAddress String?
-  txHash          String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now()) @updatedAt
+model assetpair {
+  id                 Int                  @id @default(autoincrement())
+  idBaseAsset        Int
+  idQuoteAsset       Int
+  json               String?              @db.LongText
+  isVisible          Int                  @default(1) @db.TinyInt
+  isActive           Int                  @default(1) @db.TinyInt
+  createdAt          DateTime             @default(now()) @db.DateTime(0)
+  updatedAt          DateTime             @default(now()) @db.DateTime(0)
+  baseAsset          asset                @relation("assetToassetpair_idBaseAsset", fields: [idBaseAsset], references: [id])
+  quoteAsset         asset                @relation("assetToassetpair_idQuoteAsset", fields: [idQuoteAsset], references: [id])
+  assetvalue         assetvalue[]
+  exchange_assetpair exchange_assetpair[]
+
+  @@index([idBaseAsset], name: "fk_AssetPair_BaseAsset_idx")
+  @@index([idQuoteAsset], name: "fk_AssetPair_QuoteAsset_idx")
 }
 
-model BogeWallet {
-  id        Int       @id @default(autoincrement())
-  datetime  DateTime?
-  balance   Float?
-  address   String?
-  name      String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
+model assetvalue {
+  id             Int       @id @default(autoincrement())
+  idAssetPair    Int
+  text           String?   @db.VarChar(45)
+  symbol         String    @db.VarChar(45)
+  interval       String    @db.VarChar(3)
+  openTime       DateTime? @db.DateTime(0)
+  open           Float?
+  high           Float?
+  low            Float?
+  close          Float?
+  closeTime      DateTime? @db.DateTime(0)
+  volume         Float?
+  numberOfTrades Float?
+  json           String?   @db.LongText
+  misc           String?   @db.LongText
+  isVisible      Int       @default(1) @db.TinyInt
+  isActive       Int       @default(1) @db.TinyInt
+  createdAt      DateTime  @default(now()) @db.DateTime(0)
+  updatedAt      DateTime  @default(now()) @db.DateTime(0)
+  assetpair      assetpair @relation(fields: [idAssetPair], references: [id])
+
+  @@index([idAssetPair], name: "fk_AssetValue_AssetPair_idx")
 }
 
-model BogeLiquidity {
-  id          Int       @id @default(autoincrement())
-  datetime    DateTime?
-  bnbBalance  Float?
-  bogeBalance Float?
-  price       Float?
-  address     String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
+model exchange {
+  id                                         Int                  @id @default(autoincrement())
+  text                                       String               @db.VarChar(45)
+  website                                    String?              @db.VarChar(200)
+  json                                       String?              @db.LongText
+  misc                                       String?              @db.LongText
+  isVisible                                  Int                  @default(1) @db.TinyInt
+  isActive                                   Int                  @default(1) @db.TinyInt
+  createdAt                                  DateTime             @default(now()) @db.DateTime(0)
+  updatedAt                                  DateTime             @default(now()) @db.DateTime(0)
+  asset_exchange                             asset_exchange[]
+  exchange_assetpair                         exchange_assetpair[]
+  order                                      order[]
+  trade                                      trade[]
+  transfer_exchangeTotransfer_idExchange     transfer[]           @relation("exchangeTotransfer_idExchange")
+  transfer_exchangeTotransfer_idExchange_In  transfer[]           @relation("exchangeTotransfer_idExchange_In")
+  transfer_exchangeTotransfer_idExchange_Out transfer[]           @relation("exchangeTotransfer_idExchange_Out")
+  user_exchange                              user_exchange[]
+  wallet                                     wallet[]
 }
 
-model BogeLiquidities {
-  id                 Int       @id @default(autoincrement())
-  datetime           DateTime?
-  price              Float?
-  bnbBalance_BOGE_9  Float?
-  bogeBalance_BOGE_9 Float?
-  price_BOGE_9       Float?
-  bnbBalance_V2      Float?
-  bogeBalance_V2     Float?
-  price_V2           Float?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @default(now()) @updatedAt
+model exchange_assetpair {
+  id           Int       @id @default(autoincrement())
+  idExchange   Int
+  idAssetPair  Int
+  idBaseAsset  Int
+  idQuoteAsset Int
+  position     Int?
+  json         String?   @db.LongText
+  isVisible    Int       @default(1) @db.TinyInt
+  isActive     Int       @default(1) @db.TinyInt
+  createdAt    DateTime  @default(now()) @db.DateTime(0)
+  updatedAt    DateTime  @default(now()) @db.DateTime(0)
+  assetpair    assetpair @relation(fields: [idAssetPair], references: [id])
+  baseAsset    asset     @relation("assetToexchange_assetpair_idBaseAsset", fields: [idBaseAsset], references: [id])
+  exchange     exchange  @relation(fields: [idExchange], references: [id])
+  quoteAsset   asset     @relation("assetToexchange_assetpair_idQuoteAsset", fields: [idQuoteAsset], references: [id])
+
+  @@index([idBaseAsset], name: "fk_Exchange_AssetPair_BaseAsset_idx")
+  @@index([idExchange], name: "fk_Exchange_AssetPair_Exchange_idx")
+  @@index([idQuoteAsset], name: "fk_Exchange_AssetPair_QuoteAsset_idx")
+  @@index([idAssetPair], name: "fk_exchange_assetpair_assetpair1_idx")
 }
 
-// model User {
-//   id                 Int
-//   idAsset_NativeFiat Int
-//   asset_NativeFiat Asset[]
-// }
+model ledger {
+  id                          Int         @id @default(autoincrement())
+  value                       Float
+  quantity                    Float?
+  idTransaction               Int
+  idSide                      Int
+  idAccount                   Int
+  idAsset                     Int
+  json                        String?     @db.LongText
+  misc                        String?     @db.LongText
+  isVisible                   Int         @default(1) @db.TinyInt
+  isActive                    Int         @default(1) @db.TinyInt
+  createdAt                   DateTime    @default(now()) @db.DateTime(0)
+  updatedAt                   DateTime    @default(now()) @db.DateTime(0)
+  type_ledger_idAccountTotype type        @relation("ledger_idAccountTotype", fields: [idAccount], references: [id])
+  asset                       asset       @relation(fields: [idAsset], references: [id])
+  type_ledger_idSideTotype    type        @relation("ledger_idSideTotype", fields: [idSide], references: [id])
+  transaction                 transaction @relation(fields: [idTransaction], references: [id])
 
-model BinanceWallet {
-  id        Int       @id @default(autoincrement())
-  datetime  DateTime?
-  symbol    String?
-  balance   Float?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
+  @@index([idAccount], name: "fk_Ledger_Account_idx")
+  @@index([idAsset], name: "fk_Ledger_Asset_idx")
+  @@index([idSide], name: "fk_Ledger_Side_idx")
+  @@index([idTransaction], name: "fk_Ledger_Transaction1_idx")
+}
+
+model market {
+  id        Int      @id @default(autoincrement())
+  text      String   @db.VarChar(45)
+  json      String?  @db.LongText
+  misc      String?  @db.LongText
+  isVisible Int      @default(1) @db.TinyInt
+  isActive  Int      @default(1) @db.TinyInt
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @default(now()) @db.DateTime(0)
+}
+
+model order {
+  id                        Int         @id @default(autoincrement())
+  json                      String?     @db.LongText
+  misc                      String?     @db.LongText
+  datetime                  DateTime    @db.DateTime(0)
+  price                     Float?
+  price_Total               Float?
+  quantity                  Float
+  fee                       Float?
+  idTransaction             Int
+  idAsset                   Int
+  idExchange                Int
+  idType                    Int
+  idStatus                  Int
+  idSide                    Int
+  exchangeOrderID           String?     @db.VarChar(200)
+  isVisible                 Int         @default(1) @db.TinyInt
+  isActive                  Int         @default(1) @db.TinyInt
+  createdAt                 DateTime    @default(now()) @db.DateTime(0)
+  updatedAt                 DateTime    @default(now()) @db.DateTime(0)
+  asset                     asset       @relation(fields: [idAsset], references: [id])
+  exchange                  exchange    @relation(fields: [idExchange], references: [id])
+  type_order_idSideTotype   type        @relation("order_idSideTotype", fields: [idSide], references: [id])
+  type_order_idStatusTotype type        @relation("order_idStatusTotype", fields: [idStatus], references: [id])
+  transaction               transaction @relation(fields: [idTransaction], references: [id])
+  type_order_idTypeTotype   type        @relation("order_idTypeTotype", fields: [idType], references: [id])
+  trade                     trade[]
+
+  @@index([idAsset], name: "fk_Order_Asset_idx")
+  @@index([idExchange], name: "fk_Order_Exchange_idx")
+  @@index([idSide], name: "fk_Order_Side_idx")
+  @@index([idStatus], name: "fk_Order_Status_idx")
+  @@index([idTransaction], name: "fk_Order_Transaction_idx")
+  @@index([idType], name: "fk_Order_Type_idx")
+}
+
+model trade {
+  id                               Int         @id @default(autoincrement())
+  datetime                         DateTime    @db.DateTime(0)
+  quantity                         Float
+  fee                              Float?
+  price_Unit                       Float?
+  price_Total                      Float?
+  price_Subtotal                   Float?
+  idTransaction                    Int
+  idExchange                       Int
+  idOrder                          Int
+  idType                           Int
+  idAsset                          Int
+  idAsset_Fee                      Int
+  idAsset_Price                    Int
+  json                             String?     @db.LongText
+  misc                             String?     @db.LongText
+  isVisible                        Int         @default(1) @db.TinyInt
+  isActive                         Int         @default(1) @db.TinyInt
+  createdAt                        DateTime    @default(now()) @db.DateTime(0)
+  updatedAt                        DateTime    @default(now()) @db.DateTime(0)
+  asset_assetTotrade_idAsset       asset       @relation("assetTotrade_idAsset", fields: [idAsset], references: [id])
+  asset_assetTotrade_idAsset_Fee   asset       @relation("assetTotrade_idAsset_Fee", fields: [idAsset_Fee], references: [id])
+  asset_assetTotrade_idAsset_Price asset       @relation("assetTotrade_idAsset_Price", fields: [idAsset_Price], references: [id])
+  exchange                         exchange    @relation(fields: [idExchange], references: [id])
+  order                            order       @relation(fields: [idOrder], references: [id])
+  transaction                      transaction @relation(fields: [idTransaction], references: [id])
+  type                             type        @relation(fields: [idType], references: [id])
+
+  @@index([idAsset_Fee], name: "fk_Trade_AssetFee_idx")
+  @@index([idAsset_Price], name: "fk_Trade_AssetPrice_idx")
+  @@index([idAsset], name: "fk_Trade_Asset_idx")
+  @@index([idExchange], name: "fk_Trade_Exchange_idx")
+  @@index([idOrder], name: "fk_Trade_Order_idx")
+  @@index([idTransaction], name: "fk_Trade_Transaction_idx")
+  @@index([idType], name: "fk_Trade_Type_idx")
+}
+
+model transaction {
+  id        Int        @id @default(autoincrement())
+  idType    Int
+  datetime  DateTime   @db.DateTime(0)
+  json      String?    @db.LongText
+  misc      String?    @db.LongText
+  isVisible Int        @default(1) @db.TinyInt
+  isActive  Int        @default(1) @db.TinyInt
+  createdAt DateTime   @default(now()) @db.DateTime(0)
+  updatedAt DateTime   @default(now()) @db.DateTime(0)
+  type      type       @relation(fields: [idType], references: [id])
+  ledger    ledger[]
+  order     order[]
+  trade     trade[]
+  transfer  transfer[]
+
+  @@index([idType], name: "fk_Transaction_Type_idx")
+}
+
+model transfer {
+  id             Int         @id @default(autoincrement())
+  datetime       DateTime?   @db.DateTime(0)
+  quantity       Float?
+  fee            Float?
+  price_Total    Float?
+  price_Subtotal Float?
+  address_Out    String?     @db.VarChar(200)
+  address_In     String?     @db.VarChar(200)
+  transferID     String?     @db.VarChar(200)
+  txID           String?     @db.VarChar(200)
+  idTransaction  Int
+  idType         Int
+  idExchange     Int
+  idAsset        Int
+  idAsset_Fee    Int
+  idExchange_Out Int?
+  idExchange_In  Int?
+  idStatus       Int
+  json           String?     @db.LongText
+  misc           String?     @db.LongText
+  isVisible      Int         @default(1) @db.TinyInt
+  isActive       Int         @default(1) @db.TinyInt
+  createdAt      DateTime    @default(now()) @db.DateTime(0)
+  updatedAt      DateTime    @default(now()) @db.DateTime(0)
+  asset          asset       @relation("assetTotransfer_idAsset", fields: [idAsset], references: [id])
+  asset_Fee      asset       @relation("assetTotransfer_idAsset_Fee", fields: [idAsset_Fee], references: [id])
+  exchange       exchange    @relation("exchangeTotransfer_idExchange", fields: [idExchange], references: [id])
+  exchange_In    exchange?   @relation("exchangeTotransfer_idExchange_In", fields: [idExchange_In], references: [id])
+  exchange_Out   exchange?   @relation("exchangeTotransfer_idExchange_Out", fields: [idExchange_Out], references: [id])
+  status         type        @relation("transfer_idStatusTotype", fields: [idStatus], references: [id])
+  transaction    transaction @relation(fields: [idTransaction], references: [id])
+  type           type        @relation("transfer_idTypeTotype", fields: [idType], references: [id])
+
+  @@index([idAsset_Fee], name: "fk_Transfer_AssetFee_idx")
+  @@index([idAsset], name: "fk_Transfer_Asset_idx")
+  @@index([idExchange_In], name: "fk_Transfer_ExchangeIn_idx")
+  @@index([idExchange_Out], name: "fk_Transfer_ExchangeOut_idx")
+  @@index([idExchange], name: "fk_Transfer_Exchange_idx")
+  @@index([idStatus], name: "fk_Transfer_Status_idx")
+  @@index([idTransaction], name: "fk_Transfer_Transaction_idx")
+  @@index([idType], name: "fk_Transfer_Type_idx")
+}
+
+model type {
+  id                               Int           @id @default(autoincrement())
+  idParent                         Int
+  text                             String        @db.VarChar(45)
+  altText                          String?       @db.VarChar(45)
+  description                      String?       @db.MediumText
+  json                             String?       @db.LongText
+  misc                             String?       @db.LongText
+  isVisible                        Int           @default(1) @db.TinyInt
+  isActive                         Int           @default(1) @db.TinyInt
+  createdAt                        DateTime      @default(now()) @db.DateTime(0)
+  updatedAt                        DateTime      @default(now()) @db.DateTime(0)
+  type                             type          @relation("typeTotype_idParent", fields: [idParent], references: [id])
+  ledger_ledger_idAccountTotype    ledger[]      @relation("ledger_idAccountTotype")
+  ledger_ledger_idSideTotype       ledger[]      @relation("ledger_idSideTotype")
+  order_order_idSideTotype         order[]       @relation("order_idSideTotype")
+  order_order_idStatusTotype       order[]       @relation("order_idStatusTotype")
+  order_order_idTypeTotype         order[]       @relation("order_idTypeTotype")
+  trade                            trade[]
+  transaction                      transaction[]
+  transfer_transfer_idStatusTotype transfer[]    @relation("transfer_idStatusTotype")
+  transfer_transfer_idTypeTotype   transfer[]    @relation("transfer_idTypeTotype")
+  other_type                       type[]        @relation("typeTotype_idParent")
+
+  @@index([idParent], name: "fk_type_type_idx")
+}
+
+model user {
+  id                 Int             @id @default(autoincrement())
+  idAsset_NativeFiat Int
+  firstName          String          @db.VarChar(45)
+  lastName           String?         @db.VarChar(45)
+  username           String          @db.VarChar(45)
+  json               String?         @db.LongText
+  misc               String?         @db.LongText
+  isVisible          Int             @default(1) @db.TinyInt
+  isActive           Int             @default(1) @db.TinyInt
+  createdAt          DateTime        @default(now()) @db.DateTime(0)
+  updatedAt          DateTime        @default(now()) @db.DateTime(0)
+  asset              asset           @relation(fields: [idAsset_NativeFiat], references: [id])
+  user_exchange      user_exchange[]
+  userfavorite       userfavorite[]
+  wallet             wallet[]
+
+  @@index([idAsset_NativeFiat], name: "fk_User_Asset_idx")
+}
+
+model user_exchange {
+  id              Int      @id @default(autoincrement())
+  idUser          Int
+  idExchange      Int
+  apiKey          String?  @db.VarChar(500)
+  apiSecrete      String?  @db.VarChar(500)
+  token           String?  @db.VarChar(500)
+  tokenExpiration Int?
+  position        Int?
+  json            String?  @db.LongText
+  isVisible       Int      @default(1) @db.TinyInt
+  isActive        Int      @default(1) @db.TinyInt
+  createdAt       DateTime @default(now()) @db.DateTime(0)
+  updatedAt       DateTime @default(now()) @db.DateTime(0)
+  exchange        exchange @relation(fields: [idExchange], references: [id])
+  user            user     @relation(fields: [idUser], references: [id])
+
+  @@index([idExchange], name: "fk_User_Exchange_Exchange_idx")
+  @@index([idUser], name: "fk_User_Exchange_User_idx")
+}
+
+model userfavorite {
+  idUserFavorite Int      @id @default(autoincrement())
+  idUser         Int
+  idAsset        Int
+  position       Int?
+  createdAt      DateTime @default(now()) @db.DateTime(0)
+  updatedAt      DateTime @default(now()) @db.DateTime(0)
+  asset          asset    @relation(fields: [idAsset], references: [id])
+  user           user     @relation(fields: [idUser], references: [id])
+
+  @@index([idAsset], name: "fk_userfavorites_asset1_idx")
+  @@index([idUser], name: "fk_userfavorites_user1_idx")
+}
+
+model wallet {
+  id         Int      @id @default(autoincrement())
+  idUser     Int
+  idExchange Int
+  idAsset    Int
+  address    String   @db.VarChar(200)
+  json       String?  @db.LongText
+  misc       String?  @db.LongText
+  isVisible  Int      @default(1) @db.TinyInt
+  isActive   Int      @default(1) @db.TinyInt
+  createdAt  DateTime @default(now()) @db.DateTime(0)
+  updatedAt  DateTime @default(now()) @db.DateTime(0)
+  asset      asset    @relation(fields: [idAsset], references: [id])
+  exchange   exchange @relation(fields: [idExchange], references: [id])
+  user       user     @relation(fields: [idUser], references: [id])
+
+  @@index([idAsset], name: "fk_Wallet_Asset_idx")
+  @@index([idExchange], name: "fk_Wallet_Exchange_idx")
+  @@index([idUser], name: "fk_Wallet_User_idx")
 }

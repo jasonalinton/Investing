@@ -1,0 +1,11 @@
+subscription barAdded {
+  barAdded {
+    id
+    openTime
+    open
+    high
+    low
+    volume
+    close
+  }
+}

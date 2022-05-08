@@ -2,7 +2,7 @@ const date = require('date-and-time');
 const axios = require('axios');
 const HmacSHA256 = require('crypto-js/hmac-sha256');
 const Hex = require('crypto-js/enc-hex');
-const { logErrors, currency } = require('../../utility')
+const { logErrors, currency } = require('../../utility/utility')
 
 let assets = [];
 let bogeWallets = [];
@@ -64,9 +64,9 @@ async function getBinancePortfolioAssets(assets) {
 
             res.data.balances.forEach(balance => {
                 if (balance.free != 0 && balance.asset != 'USD') {
-                    promises.push(getAssetValue(balance.asset, Number(balance.free)));
+                    promises.push(getAssetValue(balance.asset, (Number(balance.free) + Number(balance.locked))));
                 } else if (balance.asset == 'USD') {
-                    let amount = Number(balance.free);
+                    let amount = (Number(balance.free) + Number(balance.locked));
                     assets.push({ symbol: 'USD', balance: amount, price: amount, value: amount });
                 }
             });
@@ -206,7 +206,10 @@ async function getBNBPortfolioWallets(bnbWallets) {
 }
 
 async function getAssetPrice(symbol) {
-    return axios.get(`https://api.binance.us/api/v3/ticker/price?symbol=${symbol}USD`);
+    if (symbol == "SHIB")
+        return axios.get(`https://api.binance.us/api/v3/ticker/price?symbol=${symbol}USDT`);
+    else
+        return axios.get(`https://api.binance.us/api/v3/ticker/price?symbol=${symbol}USD`);
 }
 
 module.exports = {

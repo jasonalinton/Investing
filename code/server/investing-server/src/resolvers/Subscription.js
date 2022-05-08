@@ -10,6 +10,24 @@ let barAdded = {
     })
 }
 
+let priceUpdated = {
+    subscribe: withFilter(
+    (_, __, { pubsub }) => pubsub.asyncIterator(['PRICE_UPDATED']),
+    (payload, variables) => {
+        return payload.priceUpdated.symbol == variables.symbol
+    })
+}
+
+let highLowAdded = {
+    subscribe: withFilter(
+    (_, __, { pubsub }) => pubsub.asyncIterator(['HIGHLOW_ADDED']),
+    (payload, variables) => {
+        return (payload.symbol == variables.symbol && payload.interval == variables.interval && payload.period == variables.period)
+    })
+}
+
 module.exports = {
-    barAdded
+    barAdded,
+    priceUpdated,
+    highLowAdded
 }

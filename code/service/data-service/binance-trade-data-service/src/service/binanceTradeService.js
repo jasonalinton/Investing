@@ -12,7 +12,7 @@ class BinanceTradeService {
     }
 
     start() {
-        //this.intervalID = setInterval(this.run, this.serviceInterval, this);
+        this.intervalID = setInterval(this.run, this.serviceInterval, this);
         return this.run(this);
     }
 
@@ -52,6 +52,9 @@ class BinanceTradeService {
 
     async processTrades(self) {
         const promises = [];
+        //self.assetPairs = [self.assetPairs[1]];
+        // self.assetPairs = [self.assetPairs[0]];
+        self.assetPairs = [self.assetPairs[117]];
         self.assetPairs.forEach(assetPair => {
             let promise = self.getLastTradeDatetime(assetPair.baseAsset, self.port)
                 .then(res => self.getTrades(assetPair.symbol, res.data.data.getLastTradeDatetime), logErrors)
