@@ -17,7 +17,7 @@ model asset {
   isVisible                                                 Int                  @default(1) @db.TinyInt
   isActive                                                  Int                  @default(1) @db.TinyInt
   createdAt                                                 DateTime             @default(now()) @db.DateTime(0)
-  updatedAt                                                 DateTime             @default(now()) @db.DateTime(0)
+  updatedAt                                                 DateTime             @default(now()) @updatedAt @db.DateTime(0)
   asset_exchange                                            asset_exchange[]
   assetpair_assetToassetpair_idBaseAsset                    assetpair[]          @relation("assetToassetpair_idBaseAsset")
   assetpair_assetToassetpair_idQuoteAsset                   assetpair[]          @relation("assetToassetpair_idQuoteAsset")
@@ -44,7 +44,7 @@ model asset_exchange {
   isVisible  Int      @default(1) @db.TinyInt
   isActive   Int      @default(1) @db.TinyInt
   createdAt  DateTime @default(now()) @db.DateTime(0)
-  updatedAt  DateTime @default(now()) @db.DateTime(0)
+  updatedAt  DateTime @default(now()) @updatedAt @db.DateTime(0)
   asset      asset    @relation(fields: [idAsset], references: [id])
   exchange   exchange @relation(fields: [idExchange], references: [id])
 
@@ -60,7 +60,7 @@ model assetpair {
   isVisible          Int                  @default(1) @db.TinyInt
   isActive           Int                  @default(1) @db.TinyInt
   createdAt          DateTime             @default(now()) @db.DateTime(0)
-  updatedAt          DateTime             @default(now()) @db.DateTime(0)
+  updatedAt          DateTime             @default(now()) @updatedAt @db.DateTime(0)
   baseAsset          asset                @relation("assetToassetpair_idBaseAsset", fields: [idBaseAsset], references: [id])
   quoteAsset         asset                @relation("assetToassetpair_idQuoteAsset", fields: [idQuoteAsset], references: [id])
   assetvalue         assetvalue[]
@@ -89,7 +89,7 @@ model assetvalue {
   isVisible      Int       @default(1) @db.TinyInt
   isActive       Int       @default(1) @db.TinyInt
   createdAt      DateTime  @default(now()) @db.DateTime(0)
-  updatedAt      DateTime  @default(now()) @db.DateTime(0)
+  updatedAt      DateTime  @default(now()) @updatedAt @db.DateTime(0)
   assetpair      assetpair @relation(fields: [idAssetPair], references: [id])
 
   @@index([idAssetPair], name: "fk_AssetValue_AssetPair_idx")
@@ -104,7 +104,7 @@ model exchange {
   isVisible                                  Int                  @default(1) @db.TinyInt
   isActive                                   Int                  @default(1) @db.TinyInt
   createdAt                                  DateTime             @default(now()) @db.DateTime(0)
-  updatedAt                                  DateTime             @default(now()) @db.DateTime(0)
+  updatedAt                                  DateTime             @default(now()) @updatedAt @db.DateTime(0)
   asset_exchange                             asset_exchange[]
   exchange_assetpair                         exchange_assetpair[]
   order                                      order[]
@@ -127,7 +127,7 @@ model exchange_assetpair {
   isVisible    Int       @default(1) @db.TinyInt
   isActive     Int       @default(1) @db.TinyInt
   createdAt    DateTime  @default(now()) @db.DateTime(0)
-  updatedAt    DateTime  @default(now()) @db.DateTime(0)
+  updatedAt    DateTime  @default(now()) @updatedAt @db.DateTime(0)
   assetpair    assetpair @relation(fields: [idAssetPair], references: [id])
   baseAsset    asset     @relation("assetToexchange_assetpair_idBaseAsset", fields: [idBaseAsset], references: [id])
   exchange     exchange  @relation(fields: [idExchange], references: [id])
@@ -152,7 +152,7 @@ model ledger {
   isVisible                   Int         @default(1) @db.TinyInt
   isActive                    Int         @default(1) @db.TinyInt
   createdAt                   DateTime    @default(now()) @db.DateTime(0)
-  updatedAt                   DateTime    @default(now()) @db.DateTime(0)
+  updatedAt                   DateTime    @default(now()) @updatedAt @db.DateTime(0)
   type_ledger_idAccountTotype type        @relation("ledger_idAccountTotype", fields: [idAccount], references: [id])
   asset                       asset       @relation(fields: [idAsset], references: [id])
   type_ledger_idSideTotype    type        @relation("ledger_idSideTotype", fields: [idSide], references: [id])
@@ -172,7 +172,7 @@ model market {
   isVisible Int      @default(1) @db.TinyInt
   isActive  Int      @default(1) @db.TinyInt
   createdAt DateTime @default(now()) @db.DateTime(0)
-  updatedAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(0)
 }
 
 model order {
@@ -194,7 +194,7 @@ model order {
   isVisible                 Int         @default(1) @db.TinyInt
   isActive                  Int         @default(1) @db.TinyInt
   createdAt                 DateTime    @default(now()) @db.DateTime(0)
-  updatedAt                 DateTime    @default(now()) @db.DateTime(0)
+  updatedAt                 DateTime    @default(now()) @updatedAt @db.DateTime(0)
   asset                     asset       @relation(fields: [idAsset], references: [id])
   exchange                  exchange    @relation(fields: [idExchange], references: [id])
   type_order_idSideTotype   type        @relation("order_idSideTotype", fields: [idSide], references: [id])
@@ -231,7 +231,7 @@ model trade {
   isVisible                        Int         @default(1) @db.TinyInt
   isActive                         Int         @default(1) @db.TinyInt
   createdAt                        DateTime    @default(now()) @db.DateTime(0)
-  updatedAt                        DateTime    @default(now()) @db.DateTime(0)
+  updatedAt                        DateTime    @default(now()) @updatedAt @db.DateTime(0)
   asset_assetTotrade_idAsset       asset       @relation("assetTotrade_idAsset", fields: [idAsset], references: [id])
   asset_assetTotrade_idAsset_Fee   asset       @relation("assetTotrade_idAsset_Fee", fields: [idAsset_Fee], references: [id])
   asset_assetTotrade_idAsset_Price asset       @relation("assetTotrade_idAsset_Price", fields: [idAsset_Price], references: [id])
@@ -258,7 +258,7 @@ model transaction {
   isVisible Int        @default(1) @db.TinyInt
   isActive  Int        @default(1) @db.TinyInt
   createdAt DateTime   @default(now()) @db.DateTime(0)
-  updatedAt DateTime   @default(now()) @db.DateTime(0)
+  updatedAt DateTime   @default(now()) @updatedAt @db.DateTime(0)
   type      type       @relation(fields: [idType], references: [id])
   ledger    ledger[]
   order     order[]
@@ -292,7 +292,7 @@ model transfer {
   isVisible      Int         @default(1) @db.TinyInt
   isActive       Int         @default(1) @db.TinyInt
   createdAt      DateTime    @default(now()) @db.DateTime(0)
-  updatedAt      DateTime    @default(now()) @db.DateTime(0)
+  updatedAt      DateTime    @default(now()) @updatedAt @db.DateTime(0)
   asset          asset       @relation("assetTotransfer_idAsset", fields: [idAsset], references: [id])
   asset_Fee      asset       @relation("assetTotransfer_idAsset_Fee", fields: [idAsset_Fee], references: [id])
   exchange       exchange    @relation("exchangeTotransfer_idExchange", fields: [idExchange], references: [id])
@@ -323,7 +323,7 @@ model type {
   isVisible                        Int           @default(1) @db.TinyInt
   isActive                         Int           @default(1) @db.TinyInt
   createdAt                        DateTime      @default(now()) @db.DateTime(0)
-  updatedAt                        DateTime      @default(now()) @db.DateTime(0)
+  updatedAt                        DateTime      @default(now()) @updatedAt @db.DateTime(0)
   type                             type          @relation("typeTotype_idParent", fields: [idParent], references: [id])
   ledger_ledger_idAccountTotype    ledger[]      @relation("ledger_idAccountTotype")
   ledger_ledger_idSideTotype       ledger[]      @relation("ledger_idSideTotype")
@@ -350,7 +350,7 @@ model user {
   isVisible          Int             @default(1) @db.TinyInt
   isActive           Int             @default(1) @db.TinyInt
   createdAt          DateTime        @default(now()) @db.DateTime(0)
-  updatedAt          DateTime        @default(now()) @db.DateTime(0)
+  updatedAt          DateTime        @default(now()) @updatedAt @db.DateTime(0)
   asset              asset           @relation(fields: [idAsset_NativeFiat], references: [id])
   user_exchange      user_exchange[]
   userfavorite       userfavorite[]
@@ -372,7 +372,7 @@ model user_exchange {
   isVisible       Int      @default(1) @db.TinyInt
   isActive        Int      @default(1) @db.TinyInt
   createdAt       DateTime @default(now()) @db.DateTime(0)
-  updatedAt       DateTime @default(now()) @db.DateTime(0)
+  updatedAt       DateTime @default(now()) @updatedAt @db.DateTime(0)
   exchange        exchange @relation(fields: [idExchange], references: [id])
   user            user     @relation(fields: [idUser], references: [id])
 
@@ -386,7 +386,7 @@ model userfavorite {
   idAsset        Int
   position       Int?
   createdAt      DateTime @default(now()) @db.DateTime(0)
-  updatedAt      DateTime @default(now()) @db.DateTime(0)
+  updatedAt      DateTime @default(now()) @updatedAt @db.DateTime(0)
   asset          asset    @relation(fields: [idAsset], references: [id])
   user           user     @relation(fields: [idUser], references: [id])
 
@@ -405,7 +405,7 @@ model wallet {
   isVisible  Int      @default(1) @db.TinyInt
   isActive   Int      @default(1) @db.TinyInt
   createdAt  DateTime @default(now()) @db.DateTime(0)
-  updatedAt  DateTime @default(now()) @db.DateTime(0)
+  updatedAt  DateTime @default(now()) @updatedAt @db.DateTime(0)
   asset      asset    @relation(fields: [idAsset], references: [id])
   exchange   exchange @relation(fields: [idExchange], references: [id])
   user       user     @relation(fields: [idUser], references: [id])
